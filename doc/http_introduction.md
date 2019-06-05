@@ -12,7 +12,7 @@
  - [10.获取群信息](#10.获取群信息)
  - [11.获取新增群信息](#11.获取新增群信息)
  - [12.快捷回复消息接口](#12.快捷回复消息接口)
- - [13.获取系统时间](#20.获取系统时间)
+ - [13.获取系统时间](#13.获取系统时间)
  - [14.ckey验证接口](#14.ckey验证接口)
 ## 1.获取用户勋章列表
 ```
@@ -408,5 +408,34 @@ type=consult
     "data": ""
  }
  ```
+ 
+### 14.增量获取群名片
+```
+接口：/newapi/muc/get_user_increment_muc_vcard.qunar
+请求方式：POST
+参数：
+{
+    "userid":"testuser",
+    "lastupdtime":"1559108079000"
+}  
+
+返回值：
+{
+    "ret": true,
+    "errcode": 0,
+    "errmsg": "",
+    "data": [
+        {
+            "VS": "17",
+            "UT": "",
+            "MT": "3",
+            "MP": "https://localhost:8080/file/v2/download/temp/new/9c74475153c716728fc486255f9546f1.png",
+            "SN": "test_test1",
+            "MN": "muc_id@host1",
+            "MD": ""
+        }
+    ]
+}
+```
 
 
