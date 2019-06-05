@@ -21,4 +21,15 @@ public class DateUtils {
             return "";
         }
     }
+
+    public static String getTimestamp(Date time) {
+        String updateTimeStr = "";
+        if(time != null) {
+            Long timestamp = time.getTime();
+            if(timestamp != null) {
+                updateTimeStr = String.valueOf(timestamp);
+            }
+        }
+        return updateTimeStr;
+    }
 }

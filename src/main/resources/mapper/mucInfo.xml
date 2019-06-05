@@ -37,6 +37,7 @@
             <if test="mucTitle != null"> muc_title = #{mucTitle}, </if>
             <if test="mucPic != null and mucPic != ''"> muc_pic = #{mucPic}, </if>
             <if test="showNamePinyin != null"> show_name_pinyin = #{showNamePinyin}, </if>
+            update_time = current_timestamp,
             version = cast(muc_vcard_info.version as integer)+ 1
          </set>
          where muc_name = #{mucName}
@@ -105,6 +106,15 @@
 
     <select id="selectByMucName" resultMap="mucIncrementInfoResultMap">
         select <include refid="column_all"/> from muc_vcard_info where muc_name = #{mucName}
+    </select>
+
+    <select id="selectMucNamesByUsername" resultType="string">
+        select muc_name || '@' || domain from user_register_mucs where username = #{userName};
+    </select>
+    <select id="selectIncrementMucVCards" resultMap="mucIncrementInfoResultMap">
+        select <include refid="column_all"/> from muc_vcard_info where muc_name in
+        <foreach collection="ids" separator="," item="id" open="(" close=")">#{id}</foreach>
+        and update_time > #{updateTime}
     </select>
 
 </mapper>

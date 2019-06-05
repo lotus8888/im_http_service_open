@@ -4,6 +4,7 @@ import com.qunar.qchat.dao.model.MucIncrementInfo;
 import com.qunar.qchat.dao.model.MucInfoModel;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface IMucInfoDao {
@@ -35,4 +36,9 @@ public interface IMucInfoDao {
 
 
     MucInfoModel selectByMucName(@Param("mucName") String mucName);
+
+    List<String> selectMucNamesByUsername(@Param("userName") String userName);
+
+    List<MucInfoModel> selectIncrementMucVCards(@Param("ids") List<String> ids,
+                                                @Param("updateTime") Date updateTime);
 }

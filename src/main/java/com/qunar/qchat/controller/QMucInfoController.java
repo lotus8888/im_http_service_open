@@ -8,10 +8,13 @@ import com.qunar.qchat.dao.model.MucInfoModel;
 import com.qunar.qchat.model.JsonResult;
 import com.qunar.qchat.model.request.GetIncrementMucsRequest;
 import com.qunar.qchat.model.request.GetMucVcardRequest;
+import com.qunar.qchat.model.request.GetUserIncrementMucVCardRequest;
 import com.qunar.qchat.model.request.UpdateMucNickRequest;
 import com.qunar.qchat.model.result.GetMucVcardResult;
 import com.qunar.qchat.model.result.UpdateMucNickResult;
+import com.qunar.qchat.service.IMucInfoService;
 import com.qunar.qchat.utils.CookieUtils;
+import com.qunar.qchat.utils.DateUtils;
 import com.qunar.qchat.utils.HttpClientUtils;
 import com.qunar.qchat.utils.JsonResultUtils;
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -47,6 +50,8 @@ public class QMucInfoController {
     @Autowired
     private IMucInfoDao iMucInfoDao;
 
+    @Autowired
+    private IMucInfoService mucInfoService;
 
     /**
      * 获取新增群列表.
@@ -385,5 +390,50 @@ public class QMucInfoController {
             }
         }
         return true;
+    }
+
+
+    /**
+     * 增量获取指定用户对应的群名片.
+     * @param request
+     * @return JsonResult<?>
+     * */
+    @RequestMapping(value = "/get_user_increment_muc_vcard.qunar", method = RequestMethod.POST)
+    public JsonResult<?> getUserIncrementMucVCard(@RequestBody GetUserIncrementMucVCardRequest request) {
+
+        if(!request.isRequestValid()) {
+            return JsonResultUtils.fail(-1, "parameter error");
+        }
+
+        List<String> mucNames = mucInfoService.selectMucNamesByUserId(request.getUserid());
+        List<GetMucVcardResult.MucInfo> result = this.getIncrementMucVCardFromDB(mucNames, request.getLastupdtime());
+        return JsonResultUtils.success(result);
+    }
+
+    private List<GetMucVcardResult.MucInfo> getIncrementMucVCardFromDB(List<String> mucNames, String updateTime) {
+        Date updateDate = new Date(Long.parseLong(updateTime));
+        List<MucInfoModel> mucInfoModels = mucInfoService.getIncrementMucVCards(mucNames, updateDate);
+        List<GetMucVcardResult.MucInfo> mucInfoResultList = processMucVCardResult(mucInfoModels);
+        return mucInfoResultList;
+    }
+
+    private List<GetMucVcardResult.MucInfo> processMucVCardResult(List<MucInfoModel> mucInfoModels) {
+        List<GetMucVcardResult.MucInfo> mucInfoResultList =
+                mucInfoModels.stream().map(mucInfoModel -> {
+                    GetMucVcardResult.MucInfo resultMucInfo = new GetMucVcardResult.MucInfo();
+                    resultMucInfo.setMN(StringUtils.defaultString(mucInfoModel.getMucName(), ""));
+                    resultMucInfo.setSN(StringUtils.defaultString(mucInfoModel.getShowName(), ""));
+                    resultMucInfo.setMD(StringUtils.defaultString(mucInfoModel.getMucDesc(), ""));
+                    resultMucInfo.setMT(StringUtils.defaultString(mucInfoModel.getMucTitle(), ""));
+                    resultMucInfo.setMP(StringUtils.defaultString(mucInfoModel.getMucPic(), ""));
+                    resultMucInfo.setVS(StringUtils.defaultString(mucInfoModel.getVersion(), ""));
+
+                    String updateTimeStr = DateUtils.getTimestamp(mucInfoModel.getUpdateTime());
+                    resultMucInfo.setUT(StringUtils.defaultString(updateTimeStr, ""));
+
+                    return resultMucInfo;
+                }).collect(Collectors.toList());
+
+        return mucInfoResultList;
     }
 }

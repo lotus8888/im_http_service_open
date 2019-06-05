@@ -1,5 +1,7 @@
 package com.qunar.qchat.dao.model;
 
+import java.util.Date;
+
 /**
  * @auth dongzd.zhang
  * @Date 2018/11/1 11:44
@@ -14,6 +16,7 @@ public class MucInfoModel {
     private String mucTitle;
     private String mucPic;
     private String version;
+    private Date updateTime;
 
     public String getMucName() {
         return mucName;
@@ -71,6 +74,14 @@ public class MucInfoModel {
         this.showNamePinyin = showNamePinyin;
     }
 
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
     @Override
     public String toString() {
         return "MucInfoModel{" +
@@ -81,6 +92,7 @@ public class MucInfoModel {
                 ", mucTitle='" + mucTitle + '\'' +
                 ", mucPic='" + mucPic + '\'' +
                 ", version='" + version + '\'' +
+                ", updateTime=" + updateTime +
                 '}';
     }
 }

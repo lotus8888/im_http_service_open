@@ -53,6 +53,8 @@ public class GetMucVcardResult {
 
         private String VS;
 
+        private String UT;
+
 
         @JsonProperty("MN")
         public String getMN() {
@@ -108,6 +110,15 @@ public class GetMucVcardResult {
             this.VS = VS;
         }
 
+        @JsonProperty("UT")
+        public String getUT() {
+            return UT;
+        }
+
+        public void setUT(String UT) {
+            this.UT = UT;
+        }
+
         @Override
         public String toString() {
             return "MucInfo{" +
@@ -117,6 +128,7 @@ public class GetMucVcardResult {
                     ", MT='" + MT + '\'' +
                     ", MP='" + MP + '\'' +
                     ", VS='" + VS + '\'' +
+                    ", UT='" + UT + '\'' +
                     '}';
         }
     }
