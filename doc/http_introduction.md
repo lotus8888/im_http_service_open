@@ -151,7 +151,7 @@
 
 ## 6.获取用户信息
 ```
-接口：/newapi/domain/get_vcard_info.qunar
+接口：/newapi/domain/get_vcard_info.quna
 请求方式：POST
 参数：
 [{
@@ -168,22 +168,20 @@
     "errmsg": "",
     "data": [
         {
-            "domain": "ejabhost1",
+            "domain": "domain1",
             "users": [
                 {
-                    "type": "xxx",
+                    "type": "qunar_emp",
                     "loginName": "xxx",
                     "email": "",
-                    "gender": "1",
+                    "gender": "0",
                     "nickname": "xxx",
-                    "webname": "xxx",
-                    "imageurl": "http://xxxx/xxx.jpg",
+                    "imageurl": "http://xxxx/xxx.jpg?name=2259dda784fe8c4a7a7d26b208a06476.jpg&file=file/2259dda784fe8c4a7a7d26b208a06476.jpg&fileName=file/2259dda784fe8c4a7a7d26b208a06476.jpg",
                     "uid": "0",
-                    "username": "xxx",
-                    "domain": "hostname",
+                    "username": "malin.ma",
+                    "domain": "domain1",
                     "commenturl": "https://xxx/xxx",
-                    "V": "16",
-                    "mood":""
+                    "v": "4"
                 }
             ]
         }
@@ -286,12 +284,12 @@
             "domain": "conference.domain2",
             "mucs": [
                 {
-                    "SM": "xxxx,xs",
-                    "MD": "",
-                    "MT": "",
-                    "MP": "https://xxx/xxx.png",
-                    "VS": "1",
-                    "MN": "xxx"
+                    "sn": "xxxx,xs",
+                    "md": "",
+                    "mt": "",
+                    "mp": "https://xxx/xxx.png",
+                    "vs": "1",
+                    "mn": "xxx"
                 }
             ]
         }
@@ -306,8 +304,8 @@
 参数：
 {
  "d":"domain1",     #必须参数，若不传，则从q_ckey中获取
- "u":"xxx",         #必须参数，若不传，则从q_ckey中虎丘
- "t":"1233"         #必须参数
+ "u":"xxx",  #必须参数，若不传，则从q_ckey中虎丘
+ "t":"1233"           #必须参数
 
 返回值：
 {
@@ -317,8 +315,8 @@
   "data": [{
     "M":"",
     "D":"",
-    "T":"",     
-    "F":0  #整数类型 0 - 删除  1 - 新增
+    "T":"",
+    "F":""
   }]
 }
 ```
@@ -381,10 +379,10 @@ type=consult
   "data": 1540959380
 }
 ```
-## 13.ckey验证接口
+## 14.ckey验证接口
 ```
-接口：/corp/auth/check_user_tkey.qunar
-请求方式：POST
+接口:/corp/auth/check_user_tkey.qunar
+请求方式:POST
 参数：
 {
    "ckey":"dT1odWJpbi5odSZkPWVqYWJob3N0MSZrPTI3NkU2MDFCOEMxRDIwRDBBOThDN0NGNzEwMjhFOUY1JnQ9MTU1NTA1OTYzMjY5OQ=="
@@ -392,16 +390,16 @@ type=consult
 返回值：
   鉴定通过：
   {
-	"ret": true,
-	"errcode": 0,
-	"errmsg": "",
-	"data": {
-		"u": "hubin.hu",
-		"d": "ejabhost1"
+     "ret": true,
+     "errcode": 0,
+     "errmsg": "",
+     "data": {
+	"u": "hubin.hu",
+	"d": "ejabhost1"
 	}
   }
-鉴定失败：
- {
+  鉴定失败：
+  {
     "ret": false,
     "errcode": 2,
     "errmsg": "",
@@ -437,5 +435,6 @@ type=consult
     ]
 }
 ```
+
 
 

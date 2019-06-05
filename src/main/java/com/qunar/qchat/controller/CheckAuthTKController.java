@@ -46,32 +46,39 @@ public class CheckAuthTKController {
     @RequestMapping(value = "/check_user_tkey.qunar", method = RequestMethod.POST)
     @ResponseBody
     public JsonResult<?> testConnection(@RequestBody String json) {
-        Base64.Decoder decoder = Base64.getDecoder();
-        ObjectMapper mapper = new ObjectMapper();
-        Map map = null;
+        LOGGER.info("check_user_tkey.qunar param is {}",json);
         try {
-            map = mapper.readValue(json, Map.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            LOGGER.error("验证服务接受的json数据格式错误！");
-        }
-        String CkeyReceive = StrUtils.getStringValue(map.get("ckey"), "");
-        String CKey = new String(decoder.decode(CkeyReceive));
-        Map<String, String> args = getUserCkeyArgs(CKey);
+            Base64.Decoder decoder = Base64.getDecoder();
+            ObjectMapper mapper = new ObjectMapper();
+            Map map = null;
+            try {
+                map = mapper.readValue(json, Map.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+                LOGGER.error("验证服务接受的json数据格式错误！");
+                return JsonResultUtils.fail(2, "参数错误！");
+            }
+            String CkeyReceive = StrUtils.getStringValue(map.get("ckey"), "");
+            String CKey = new String(decoder.decode(CkeyReceive));
+            Map<String, String> args = getUserCkeyArgs(CKey);
 
-        if(!args.containsKey(D)) {
-            args.put(D,  Config.getProperty("default_host"));
-        }
-        if (!args.containsKey(D) || !args.containsKey(U) || !args.containsKey(T) || !args.containsKey(K)) {
-            return JsonResultUtils.fail(2, "传递参数缺失！");
-        }
-        Set<String> tokenRedis = redisUtil.hGetKeys(2, args.get(U) + JOINER_USER_HOST + args.get(D));
-        if (checkUserAuth(args.get(U), args.get(T), args.get(K), tokenRedis)) {
-            Map<String, Object> resultMap = new HashMap<>();
+            if (!args.containsKey(D)) {
+                args.put(D, Config.getProperty("default_host"));
+            }
+            if (!args.containsKey(D) || !args.containsKey(U) || !args.containsKey(T) || !args.containsKey(K)) {
+                return JsonResultUtils.fail(2, "传递参数缺失！");
+            }
+            Set<String> tokenRedis = redisUtil.hGetKeys(2, args.get(U) + JOINER_USER_HOST + args.get(D));
+            if (checkUserAuth(args.get(U), args.get(T), args.get(K), tokenRedis)) {
+                Map<String, Object> resultMap = new HashMap<>();
 
-            resultMap.put("u", args.get(U));
-            resultMap.put("d", args.get(D));
-            return JsonResultUtils.success(resultMap);
+                resultMap.put("u", args.get(U));
+                resultMap.put("d", args.get(D));
+                return JsonResultUtils.success(resultMap);
+            }
+        }catch (Exception e){
+            LOGGER.error("验证失败 异常信息",e);
+            return JsonResultUtils.fail(2, "验证失败！");
         }
         return JsonResultUtils.fail(2, "验证失败！");
     }
