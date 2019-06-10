@@ -69,4 +69,8 @@ public interface IUserInfo {
 
     UserInfoQtalk selectUserByUserId(@Param("userId")String userId,@Param("hostId")Integer hostId);
 
+    int insertVcardVersion(@Param("username") String username,
+                           @Param("host") String host,
+                           @Param("url") String url,
+                           @Param("gender") Integer gender);
 }
