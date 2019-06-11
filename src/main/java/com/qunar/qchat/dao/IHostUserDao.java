@@ -21,4 +21,5 @@ public interface IHostUserDao {
 
 
     int updateHostUser(@Param("UserInfoQtalk") UserInfoQtalk userInfoQtalk);
+    int deleteHostUsers();
 }

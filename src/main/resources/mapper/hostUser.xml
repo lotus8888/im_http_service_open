@@ -150,4 +150,8 @@
         WHERE user_id=#{UserInfoQtalk.user_id} and host_id=1;
     </update>
 
+    <delete id="deleteHostUsers">
+        DELETE from host_users;
+    </delete>
+
 </mapper>

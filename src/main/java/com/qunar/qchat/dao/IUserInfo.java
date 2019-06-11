@@ -73,4 +73,6 @@ public interface IUserInfo {
                            @Param("host") String host,
                            @Param("url") String url,
                            @Param("gender") Integer gender);
+
+    int deleteVcard();
 }

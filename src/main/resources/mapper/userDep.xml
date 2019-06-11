@@ -125,4 +125,8 @@
         )ON conflict(username,host) DO UPDATE
         SET gender =#{gender},version =vcard_version.version+1;
     </insert>
+
+    <delete id="deleteVcard">
+        DELETE from vcard_version;
+    </delete>
 </mapper>

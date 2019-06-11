@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qunar.qchat.dao.IQtalkConfigDao">
+
+    <resultMap id="resultMap" type="com.qunar.qchat.dao.model.QtalkConfigModel">
+        <result column="id" property="id"></result>
+        <result column="config_key" property="configKey"></result>
+        <result column="config_value" property="configValue"></result>
+    </resultMap>
+
+    <select id="getConfigMap" resultMap="resultMap">
+        select id, config_key, config_value from qtalk_config;
+    </select>
+
+</mapper>
