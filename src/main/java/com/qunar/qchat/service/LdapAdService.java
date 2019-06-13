@@ -240,22 +240,22 @@ public class LdapAdService {
             LOGGER.info(">>>>>>>>>>>>>此次更新入职{}人", insert.size());
             insert.stream().forEach(x -> {
                 LOGGER.info("update structure new insert >> {}", JacksonUtils.obj2String(x));
-               // hostUserDao.insertUser(x);
-               // insertVcard(x);
+                hostUserDao.insertUser(x);
+                insertVcard(x);
             });
         }
         if (delete != null) {
             LOGGER.info(">>>>>>>>>>>>>此次更新离职{}人", delete.size());
             delete.stream().forEach(x -> {
                 LOGGER.info("update structure update user info >> {}", JacksonUtils.obj2String(x));
-               // hostUserDao.updateHostUserHireType(x);
+                hostUserDao.updateHostUserHireType(x);
             });
         }
         if (update != null) {
             LOGGER.info(">>>>>>>>>>>>>此次更新更新{}人", update.size());
             update.stream().forEach(x -> {
                 LOGGER.info("update structure leave user >> {}", JacksonUtils.obj2String(x));
-              //  hostUserDao.updateHostUser(x);
+                hostUserDao.updateHostUser(x);
             });
         }
     }
@@ -371,7 +371,6 @@ public class LdapAdService {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(false);
         }
-//        scheduledFuture = service.scheduleAtFixedRate(() -> System.out.println(new Date(System.currentTimeMillis()).toString() + "--------------------"), interval, interval, TimeUnit.MINUTES);
 
         service.scheduleAtFixedRate(() -> synchronizeAdUsers(false, true), interval, interval, TimeUnit.HOURS);
     }
