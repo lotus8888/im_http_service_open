@@ -7,6 +7,14 @@ public class QtalkConfigModel {
     private String configKey;
     private String configValue;
 
+    public QtalkConfigModel() {
+    }
+
+    public QtalkConfigModel(String configKey, String configValue) {
+        this.configKey = configKey;
+        this.configValue = configValue;
+    }
+
     public BigInteger getId() {
         return id;
     }

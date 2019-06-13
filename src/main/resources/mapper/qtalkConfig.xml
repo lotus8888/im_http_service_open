@@ -14,4 +14,16 @@
         select id, config_key, config_value from qtalk_config;
     </select>
 
+
+    <insert id="insertConfigs" useGeneratedKeys="true" keyProperty="id">
+        insert into qtalk_config(config_key, config_value) VALUES
+        <if test="list != null and list.size() > 0">
+            <foreach collection="list" separator="," item="config">
+                (#{configKey},#{configValue})
+            </foreach>
+        </if>
+        <selectKey resultType="long" order="AFTER" keyProperty="id" >
+            SELECT currval('qtalk_config_id_seq')
+        </selectKey>
+    </insert>
 </mapper>

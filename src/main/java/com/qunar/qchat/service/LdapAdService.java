@@ -37,6 +37,10 @@ import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.PagedResultsResponseControl;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -56,6 +60,10 @@ public class LdapAdService {
     IQtalkConfigDao qtalkConfigDao;
 
     private Map<String, String> qtalkConfig;
+
+    private static final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+
+    private ScheduledFuture<?> scheduledFuture = null;
 
     // 获取template
     private LdapTemplate getLdapTemplate() {
@@ -87,8 +95,10 @@ public class LdapAdService {
     }
 
     // 同步用户
-    public JsonResult<?> synchronizeAdUsers(boolean deleteData) {
-        qtalkConfig();
+    public JsonResult<?> synchronizeAdUsers(boolean deleteData, boolean needSetConfig) {
+        if (needSetConfig) {
+            qtalkConfig();
+        }
         if (MapUtils.isEmpty(qtalkConfig) || qtalkConfig.size() < 5 || StringUtils.isEmpty(qtalkConfig.get("ldapSearchBase"))) {
             return JsonResultUtils.fail(411, "ldap配置缺少");
         }
@@ -119,6 +129,7 @@ public class LdapAdService {
         if (failSearchBase.size() > 0) {
             return JsonResultUtils.fail(412, "部分base同步失败", failSearchBase);
         }
+        scheduleTask();
         return JsonResultUtils.success("success");
     }
 
@@ -348,5 +359,23 @@ public class LdapAdService {
     // 清除历史数据
     private boolean deleteOldData() {
         return iUserInfo.deleteVcard() == 1 && hostUserDao.deleteHostUsers() == 1;
+    }
+
+    // 定时执行
+    public void scheduleTask() {
+        qtalkConfig();
+        String intervalTime = qtalkConfig.getOrDefault("intervalTime", "1");
+        int interval = StringUtils.isNumeric(intervalTime) ? Integer.parseInt(intervalTime) : 1;
+
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(false);
+        }
+//        scheduledFuture = service.scheduleAtFixedRate(() -> System.out.println(new Date(System.currentTimeMillis()).toString() + "--------------------"), interval, interval, TimeUnit.MINUTES);
+
+        service.scheduleAtFixedRate(() -> synchronizeAdUsers(false, true), interval, interval, TimeUnit.MINUTES);
+    }
+
+    public void setQtalkConfig(Map<String, String> qtalkConfig) {
+        this.qtalkConfig = qtalkConfig;
     }
 }

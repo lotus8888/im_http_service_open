@@ -7,4 +7,8 @@ import java.util.List;
 @Component
 public interface IQtalkConfigDao {
     List<QtalkConfigModel> getConfigMap();
+
+    int insertConfigs(List<QtalkConfigModel> list);
+
+
 }
