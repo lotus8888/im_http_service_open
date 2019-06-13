@@ -78,7 +78,7 @@ public class QtalkConfigRequest {
     public void setIntervalTime(String intervalTime) {
         this.intervalTime = intervalTime;
     }
-    class ResultMapping{
+    static class ResultMapping{
         private String userId;
         private String userName;
         private String department;

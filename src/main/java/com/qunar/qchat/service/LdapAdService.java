@@ -4,6 +4,7 @@ package com.qunar.qchat.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+import com.qunar.qchat.constants.BaseCode;
 import com.qunar.qchat.constants.Config;
 import com.qunar.qchat.dao.IHostUserDao;
 import com.qunar.qchat.dao.IQtalkConfigDao;
@@ -99,13 +100,13 @@ public class LdapAdService {
         if (needSetConfig) {
             qtalkConfig();
         }
-        if (MapUtils.isEmpty(qtalkConfig) || qtalkConfig.size() < 5 || StringUtils.isEmpty(qtalkConfig.get("ldapSearchBase"))) {
-            return JsonResultUtils.fail(411, "ldap配置缺少");
+        if (MapUtils.isEmpty(qtalkConfig) || StringUtils.isEmpty(qtalkConfig.get("ldapSearchBase"))) {
+            return JsonResultUtils.fail(BaseCode.LDAP_CONFIG_ERROR.getCode(), BaseCode.LDAP_CONFIG_ERROR.getMsg());
         }
 
         LdapTemplate ldapTemplate = getLdapTemplate();
         if (ldapTemplate == null) {
-            return JsonResultUtils.fail(411, "ldap配置错误");
+            return JsonResultUtils.fail(BaseCode.LDAP_CONFIG_ERROR.getCode(), BaseCode.LDAP_CONFIG_ERROR.getMsg());
         }
 
         String ldapSearchBase = qtalkConfig.get("ldapSearchBase");
@@ -116,7 +117,7 @@ public class LdapAdService {
             LOGGER.warn("delete old data");
             if (!deleteOldData()) {
                 LOGGER.warn("delete oldData fail");
-                return JsonResultUtils.fail(411, "数据清除错误");
+                return JsonResultUtils.fail(BaseCode.DATA_DELETE_ERROR.getCode(), BaseCode.DATA_DELETE_ERROR.getMsg());
             }
         }
 
@@ -127,7 +128,7 @@ public class LdapAdService {
             }
         });
         if (failSearchBase.size() > 0) {
-            return JsonResultUtils.fail(412, "部分base同步失败", failSearchBase);
+            return JsonResultUtils.fail(BaseCode.DATA_SYN_ERROR.getCode(), BaseCode.DATA_SYN_ERROR.getMsg(), failSearchBase);
         }
         scheduleTask();
         return JsonResultUtils.success("success");
@@ -143,7 +144,7 @@ public class LdapAdService {
             String ldapResultMapping = qtalkConfig.get("ldapResultMapping");
             if (StringUtils.isAnyEmpty(ldapSearchBase, ldapResultMapping)) {
                 LOGGER.warn("getAdUsers properties base:{} mapping:{} is empty", ldapSearchBase, ldapResultMapping);
-                return JsonResultUtils.fail(411, "配置错误");
+                return JsonResultUtils.fail(BaseCode.DATA_DELETE_ERROR.getCode(), BaseCode.DATA_DELETE_ERROR.getMsg());
             }
 
             AndFilter filter = new AndFilter();
@@ -188,7 +189,7 @@ public class LdapAdService {
             return JsonResultUtils.success();
         } catch (NamingException | IOException e) {
             LOGGER.error("LdapAdService/getAdUsers error");
-            return JsonResultUtils.fail(500, "server端错误");
+            return JsonResultUtils.fail(BaseCode.ERROR.getCode(), BaseCode.ERROR.getMsg());
         }
     }
 
@@ -239,22 +240,22 @@ public class LdapAdService {
             LOGGER.info(">>>>>>>>>>>>>此次更新入职{}人", insert.size());
             insert.stream().forEach(x -> {
                 LOGGER.info("update structure new insert >> {}", JacksonUtils.obj2String(x));
-                hostUserDao.insertUser(x);
-                insertVcard(x);
+               // hostUserDao.insertUser(x);
+               // insertVcard(x);
             });
         }
         if (delete != null) {
             LOGGER.info(">>>>>>>>>>>>>此次更新离职{}人", delete.size());
             delete.stream().forEach(x -> {
                 LOGGER.info("update structure update user info >> {}", JacksonUtils.obj2String(x));
-                hostUserDao.updateHostUserHireType(x);
+               // hostUserDao.updateHostUserHireType(x);
             });
         }
         if (update != null) {
             LOGGER.info(">>>>>>>>>>>>>此次更新更新{}人", update.size());
             update.stream().forEach(x -> {
                 LOGGER.info("update structure leave user >> {}", JacksonUtils.obj2String(x));
-                hostUserDao.updateHostUser(x);
+              //  hostUserDao.updateHostUser(x);
             });
         }
     }
@@ -372,7 +373,7 @@ public class LdapAdService {
         }
 //        scheduledFuture = service.scheduleAtFixedRate(() -> System.out.println(new Date(System.currentTimeMillis()).toString() + "--------------------"), interval, interval, TimeUnit.MINUTES);
 
-        service.scheduleAtFixedRate(() -> synchronizeAdUsers(false, true), interval, interval, TimeUnit.MINUTES);
+        service.scheduleAtFixedRate(() -> synchronizeAdUsers(false, true), interval, interval, TimeUnit.HOURS);
     }
 
     public void setQtalkConfig(Map<String, String> qtalkConfig) {

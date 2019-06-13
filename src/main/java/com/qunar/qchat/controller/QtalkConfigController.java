@@ -33,13 +33,14 @@ public class QtalkConfigController {
 
 
     @RequestMapping(value = "/saveLdapConfig.qunar", method = RequestMethod.POST)
-    public JsonResult<?> saveLdapConfig(@RequestBody String json) {
+    public JsonResult<?> saveLdapConfig(@RequestBody QtalkConfigRequest configRequest) {
 
         try {
-            QtalkConfigRequest configRequest = JacksonUtils.string2Obj(json, QtalkConfigRequest.class);
+            //QtalkConfigRequest configRequest = JacksonUtils.string2Obj(json, QtalkConfigRequest.class);
             if (configRequest == null || StringUtils.isNotEmpty(configRequest.check())) {
                 return JsonResultUtils.fail(411, "param error");
             }
+            String json = JacksonUtils.obj2String(configRequest);
             Map<String, String> stringMap = JacksonUtils.string2Obj(json, new TypeReference<Map<String, String>>() {
             });
 
