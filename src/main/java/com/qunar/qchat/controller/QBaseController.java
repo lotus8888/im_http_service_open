@@ -128,9 +128,8 @@ public class QBaseController {
 
     @RequestMapping(value = "/initUser.qunar", method = RequestMethod.GET)
     public Object synchronizeAdUser(@RequestParam(required = false, defaultValue = "false") boolean needDeleteData){
+        LOGGER.info("synchronizeAdUser user begin");
+        return ldapAdService.synchronizeAdUsers(needDeleteData, true);
 
-       // return ldapAdService.synchronizeAdUsers(needDeleteData, true);
-        ldapAdService.scheduleTask();
-        return null;
     }
 }
