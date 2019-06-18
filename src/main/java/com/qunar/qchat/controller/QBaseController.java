@@ -8,8 +8,10 @@ import com.qunar.qchat.dao.model.InviteInfoModel;
 import com.qunar.qchat.model.JsonResult;
 import com.qunar.qchat.model.request.GetDepsRequest;
 import com.qunar.qchat.model.request.GetInviteInfoRequest;
+import com.qunar.qchat.service.LdapAdService;
 import com.qunar.qchat.utils.CookieUtils;
 import com.qunar.qchat.utils.HttpClientUtils;
+import com.qunar.qchat.utils.JacksonUtils;
 import com.qunar.qchat.utils.JsonResultUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,10 +19,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -124,4 +123,13 @@ public class QBaseController {
         }
     }
 
+    @Autowired
+    LdapAdService ldapAdService;
+
+    @RequestMapping(value = "/initUser.qunar", method = RequestMethod.GET)
+    public Object synchronizeAdUser(@RequestParam(required = false, defaultValue = "false") boolean needDeleteData){
+        LOGGER.info("synchronizeAdUser user begin");
+        return ldapAdService.synchronizeAdUsers(needDeleteData, true);
+
+    }
 }

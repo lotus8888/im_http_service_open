@@ -107,4 +107,26 @@
         where host_id=#{hostId} and user_id=#{userId};
     </select>
 
+    <insert id="insertVcardVersion">
+        insert into vcard_version
+        (
+        username,
+        host,
+        version,
+        url,
+        gender
+        )
+        VALUES (
+        #{username},
+        #{host},
+        1,
+        #{url},
+        #{gender}
+        )ON conflict(username,host) DO UPDATE
+        SET gender =#{gender},version =vcard_version.version+1;
+    </insert>
+
+    <delete id="deleteVcard">
+        DELETE from vcard_version;
+    </delete>
 </mapper>

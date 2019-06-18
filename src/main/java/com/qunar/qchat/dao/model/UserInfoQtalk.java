@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 /**
  * UserInfoQtalk
  *
@@ -78,4 +80,29 @@ public class UserInfoQtalk {
     @JsonIgnore
     private String leader;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UserInfoQtalk that = (UserInfoQtalk) o;
+        return Objects.equals(user_name, that.user_name) &&
+                Objects.equals(user_id, that.user_id) &&
+                Objects.equals(department, that.department) &&
+                Objects.equals(dep1, that.dep1) &&
+                Objects.equals(dep2, that.dep2) &&
+                Objects.equals(dep3, that.dep3) &&
+                Objects.equals(dep4, that.dep4) &&
+                Objects.equals(dep5, that.dep5) &&
+//                Objects.equals(hire_flag, that.hire_flag) &&
+                Objects.equals(email, that.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(host_id, user_id, user_name, department, dep1, dep2, dep3, dep4, dep5, email);
+    }
 }

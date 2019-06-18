@@ -56,4 +56,102 @@
         select max(version) from ${table}
     </select>
 
+    <select id="selectOnJobUserFromHostUser"
+            resultType="com.qunar.qchat.dao.model.UserInfoQtalk">
+        SELECT
+        user_id AS user_id,
+        department AS department,
+        user_name AS user_name,
+        dep1 AS dep1,
+        dep2 AS dep2,
+        dep3 AS dep3,
+        dep4 AS dep4,
+        dep5 AS dep5,
+        ps_deptid AS ps_deptid,
+        gender AS gender,
+        hire_flag AS hire_flag,
+        user_type AS user_type,
+        version AS version,
+        email AS email,
+        pinyin AS pinyin
+        FROM host_users
+        where hire_flag=1 and host_id=#{hostID};
+    </select>
+
+
+    <insert id="insertUser"
+            parameterType="com.qunar.qchat.dao.model.UserInfoQtalk">
+        insert into host_users
+        (
+        host_id,
+        user_id,
+        password,
+        user_name,
+        department,
+        ps_deptid,
+        dep1,
+        dep2,
+        dep3,
+        dep4,
+        dep5,
+        pinyin,
+        hire_flag,
+        version,
+        gender,
+        user_type
+        )
+        VALUES (
+        #{UserInfoQtalk.host_id},
+        #{UserInfoQtalk.user_id},
+        #{UserInfoQtalk.user_id},
+        #{UserInfoQtalk.user_name},
+        #{UserInfoQtalk.department},
+        #{UserInfoQtalk.ps_deptid},
+        #{UserInfoQtalk.dep1},
+        #{UserInfoQtalk.dep2},
+        #{UserInfoQtalk.dep3},
+        #{UserInfoQtalk.dep4},
+        #{UserInfoQtalk.dep5},
+        hanzi_to_pinyin(#{UserInfoQtalk.user_name}),
+        #{UserInfoQtalk.hire_flag},
+        #{UserInfoQtalk.version},
+        #{UserInfoQtalk.gender},
+        #{UserInfoQtalk.user_type}) ON conflict(user_id, host_id) DO UPDATE
+        set user_name=#{UserInfoQtalk.user_name},department=#{UserInfoQtalk.department},ps_deptid=#{UserInfoQtalk.ps_deptid},dep1=#{UserInfoQtalk.dep1},
+        dep2=#{UserInfoQtalk.dep2},dep3=#{UserInfoQtalk.dep3},dep4=#{UserInfoQtalk.dep4},dep5=#{UserInfoQtalk.dep5},pinyin=hanzi_to_pinyin(#{UserInfoQtalk.user_name}),
+        hire_flag=#{UserInfoQtalk.hire_flag},version=#{UserInfoQtalk.version},gender = #{UserInfoQtalk.gender};
+    </insert>
+
+    <update id="updateHostUserHireType"
+            parameterType="com.qunar.qchat.dao.model.UserInfoQtalk">
+        update host_users
+        SET version=#{UserInfoQtalk.version},
+        hire_flag = #{UserInfoQtalk.hire_flag}
+        WHERE user_id=#{UserInfoQtalk.user_id};
+    </update>
+
+    <update id="updateHostUser"
+            parameterType="com.qunar.qchat.dao.model.UserInfoQtalk">
+        update host_users
+        SET frozen_flag=0,
+        user_name=#{UserInfoQtalk.user_name},
+        hire_flag=#{UserInfoQtalk.hire_flag},
+        department=#{UserInfoQtalk.department},
+        dep1=#{UserInfoQtalk.dep1},
+        dep2=#{UserInfoQtalk.dep2},
+        dep3=#{UserInfoQtalk.dep3},
+        dep4=#{UserInfoQtalk.dep4},
+        dep5=#{UserInfoQtalk.dep5},
+        ps_deptid=#{UserInfoQtalk.ps_deptid},
+        version=#{UserInfoQtalk.version},
+        user_type=#{UserInfoQtalk.user_type},
+        gender=#{UserInfoQtalk.gender},
+        email = #{UserInfoQtalk.email}
+        WHERE user_id=#{UserInfoQtalk.user_id} and host_id=1;
+    </update>
+
+    <delete id="deleteHostUsers">
+        DELETE from host_users;
+    </delete>
+
 </mapper>
