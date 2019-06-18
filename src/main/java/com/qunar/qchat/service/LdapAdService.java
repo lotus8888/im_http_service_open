@@ -222,7 +222,7 @@ public class LdapAdService {
         });
 
         both.keySet().stream().forEach(key -> {
-            UserInfoQtalk userInfoQtalk = dbUser.get(key);
+            UserInfoQtalk userInfoQtalk = adUser.get(key);
             userInfoQtalk.setVersion(nextVersion);
             updatePg.add(userInfoQtalk);
         });
