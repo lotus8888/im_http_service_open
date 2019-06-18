@@ -1,26 +1,28 @@
 package com.qunar.qchat.controller;
 
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.qunar.qchat.constants.BaseCode;
+import com.qunar.qchat.dao.model.QtalkConfigModel;
 import com.qunar.qchat.model.JsonResult;
-import com.qunar.qchat.model.request.GetUserStatusRequest;
 import com.qunar.qchat.model.request.QtalkConfigRequest;
 import com.qunar.qchat.service.LdapAdService;
 import com.qunar.qchat.service.QtalkConfigService;
 import com.qunar.qchat.utils.JacksonUtils;
 import com.qunar.qchat.utils.JsonResultUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
-@RequestMapping("/newapi/config/")
+@RequestMapping("/newapi/nck/ldap/")
 @RestController
 public class QtalkConfigController {
 
@@ -38,7 +40,7 @@ public class QtalkConfigController {
         try {
             //QtalkConfigRequest configRequest = JacksonUtils.string2Obj(json, QtalkConfigRequest.class);
             if (configRequest == null || StringUtils.isNotEmpty(configRequest.check())) {
-                return JsonResultUtils.fail(411, "param error");
+                return JsonResultUtils.fail(BaseCode.BADREQUEST.getCode(), BaseCode.BADREQUEST.getMsg());
             }
             String json = JacksonUtils.obj2String(configRequest);
             Map<String, String> stringMap = JacksonUtils.string2Obj(json, new TypeReference<Map<String, String>>() {
@@ -59,4 +61,36 @@ public class QtalkConfigController {
 
     }
 
+    @RequestMapping(value = "/initUser.qunar", method = RequestMethod.POST)
+    public Object synchronizeAdUser(@RequestBody(required = false) String json) {
+        LOGGER.info("synchronizeAdUser user begin");
+        boolean needDeleteData = false;
+        if (StringUtils.isNotEmpty(json) && json.contains("needDeleteData")) {
+            JSONObject jsonObject = JSONObject.parseObject(json);
+            needDeleteData = jsonObject.getBoolean("needDeleteData");
+        }
+        return ldapAdService.synchronizeAdUsers(needDeleteData, true);
+    }
+
+    @RequestMapping(value = "/selectConfig.qunar", method = RequestMethod.POST)
+    public JsonResult<?> selectLdapConfig() {
+        LOGGER.info("selectLdapConfig begin");
+        return qtalkConfigService.selectConfig();
+    }
+
+    @RequestMapping(value = "/updateConfig.qunar", method = RequestMethod.POST)
+    public JsonResult<?> updateLdapConfig(@RequestBody String json) {
+        try {
+            LOGGER.info("selectLdapConfig begin");
+            List<QtalkConfigModel> configModels = JSONArray.parseArray(json, QtalkConfigModel.class);
+            if (CollectionUtils.isEmpty(configModels)) {
+                return JsonResultUtils.fail(BaseCode.BADREQUEST.getCode(), BaseCode.BADREQUEST.getMsg());
+            }
+
+            return qtalkConfigService.insertOrUpdateConfig(configModels);
+        } catch (Exception e) {
+            LOGGER.error("updateLdapConfig error", e);
+            return JsonResultUtils.fail(BaseCode.ERROR.getCode(), BaseCode.ERROR.getMsg());
+        }
+    }
 }

@@ -26,4 +26,9 @@
             SELECT currval('qtalk_config_id_seq')
         </selectKey>
     </insert>
+
+    <insert id="insertOrUpdateConfig" parameterType="com.qunar.qchat.dao.model.QtalkConfigModel">
+        INSERT  into qtalk_config(config_key, config_value) VALUES
+        (#{configKey},#{configValue}) ON conflict(config_key) DO UPDATE SET config_value =#{configValue}
+    </insert>
 </mapper>

@@ -32,4 +32,18 @@ public class QtalkConfigService {
         return insertResult == 1 ? JsonResultUtils.success() : JsonResultUtils.fail(500, "server端错误");
 
     }
+
+    public JsonResult<?> selectConfig() {
+        List<QtalkConfigModel> configMap = qtalkConfigDao.getConfigMap();
+        LOGGER.info("selectConfig result:{}", JacksonUtils.obj2String(configMap));
+        return JsonResultUtils.success(configMap);
+
+    }
+    public JsonResult<?> insertOrUpdateConfig(List<QtalkConfigModel> list) {
+        list.stream().forEach(qtalkConfigModel -> qtalkConfigDao.insertOrUpdateConfig(qtalkConfigModel));
+//        int updateConfig = qtalkConfigDao.insertOrUpdateConfig(list);
+        //LOGGER.info("insertOrUpdateConfig result:{}", updateConfig);
+        return JsonResultUtils.success();
+
+    }
 }
