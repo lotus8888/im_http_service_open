@@ -29,7 +29,7 @@ public class QtalkConfigService {
 
         int insertResult = qtalkConfigDao.insertConfigs(configModels);
         LOGGER.info("insertConfig result:{}", insertResult);
-        return insertResult == 1 ? JsonResultUtils.success() : JsonResultUtils.fail(500, "server端错误");
+        return insertResult == 0 ? JsonResultUtils.fail(500, "server端错误") : JsonResultUtils.success();
 
     }
 

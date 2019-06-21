@@ -19,7 +19,7 @@
         insert into qtalk_config(config_key, config_value) VALUES
         <if test="list != null and list.size() > 0">
             <foreach collection="list" separator="," item="config">
-                (#{configKey},#{configValue})
+                (#{config.configKey},#{config.configValue})
             </foreach>
         </if>
         <selectKey resultType="long" order="AFTER" keyProperty="id" >

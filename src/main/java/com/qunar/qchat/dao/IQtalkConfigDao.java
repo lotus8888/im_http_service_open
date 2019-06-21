@@ -1,6 +1,7 @@
 package com.qunar.qchat.dao;
 
 import com.qunar.qchat.dao.model.QtalkConfigModel;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 import java.util.List;
 
@@ -10,7 +11,7 @@ public interface IQtalkConfigDao {
 
     int insertConfigs(List<QtalkConfigModel> list);
 
-    int insertOrUpdateConfig(QtalkConfigModel qtalkConfigModel);
+    int insertOrUpdateConfig(@Param("list") QtalkConfigModel qtalkConfigModel);
 
 
 }
