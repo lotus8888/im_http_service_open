@@ -38,10 +38,7 @@ import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.PagedResultsResponseControl;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -182,9 +179,10 @@ public class LdapAdService {
             } while ((cookie != null) && (cookie.length != 0));
 
             List<UserInfoQtalk> userInfoQtalks = hostUserDao.selectOnJobUserFromHostUser(1);
-            HashMap<String, UserInfoQtalk> dbUser = new HashMap<>();
-            dbUser = (HashMap) userInfoQtalks.stream().collect(Collectors.toMap(UserInfoQtalk::getUser_id, A -> A, (k1, k2) -> k1));
-            compareAndPrcess(adUser, dbUser);
+//            HashMap<String, UserInfoQtalk> dbUser = new HashMap<>();
+            HashMap<String, UserInfoQtalk> dbUser = (HashMap) userInfoQtalks.stream().collect(Collectors.toMap(UserInfoQtalk::getUser_id, A -> A, (k1, k2) -> k1));
+            CompletableFuture.runAsync(() -> compareAndPrcess(adUser, dbUser));
+//            compareAndPrcess(adUser, dbUser);
 
             return JsonResultUtils.success();
         } catch (NamingException | IOException e) {

@@ -11,7 +11,7 @@ public interface IQtalkConfigDao {
 
     int insertConfigs(List<QtalkConfigModel> list);
 
-    int insertOrUpdateConfig(@Param("list") QtalkConfigModel qtalkConfigModel);
+    int insertOrUpdateConfig(QtalkConfigModel qtalkConfigModel);
 
 
 }

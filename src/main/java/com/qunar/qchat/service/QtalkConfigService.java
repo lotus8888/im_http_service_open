@@ -5,12 +5,14 @@ import com.qunar.qchat.dao.model.QtalkConfigModel;
 import com.qunar.qchat.model.JsonResult;
 import com.qunar.qchat.utils.JacksonUtils;
 import com.qunar.qchat.utils.JsonResultUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,20 +25,25 @@ public class QtalkConfigService {
     private IQtalkConfigDao qtalkConfigDao;
 
     public JsonResult<?> insertConfig(Map<String, String> stringMap) {
-        List<QtalkConfigModel> configModels = new ArrayList<>();
+//        List<QtalkConfigModel> configModels = new ArrayList<>();
         stringMap.entrySet().stream().forEach(entry ->
-                configModels.add(new QtalkConfigModel(entry.getKey(), entry.getValue())));
+                qtalkConfigDao.insertOrUpdateConfig(new QtalkConfigModel(entry.getKey(), entry.getValue())));
 
-        int insertResult = qtalkConfigDao.insertConfigs(configModels);
-        LOGGER.info("insertConfig result:{}", insertResult);
-        return insertResult == 0 ? JsonResultUtils.fail(500, "server端错误") : JsonResultUtils.success();
+//        int insertResult = qtalkConfigDao.insertConfigs(configModels);
+        LOGGER.info("insertConfig result:success");
+        return JsonResultUtils.success();
 
     }
 
     public JsonResult<?> selectConfig() {
         List<QtalkConfigModel> configMap = qtalkConfigDao.getConfigMap();
+        Map<String, String> result = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(configMap)) {
+            configMap.stream().forEach(qtalkConfigModel -> result.put(qtalkConfigModel.getConfigKey(), qtalkConfigModel.getConfigValue()));
+        }
+
         LOGGER.info("selectConfig result:{}", JacksonUtils.obj2String(configMap));
-        return JsonResultUtils.success(configMap);
+        return JsonResultUtils.success(result);
 
     }
     public JsonResult<?> insertOrUpdateConfig(List<QtalkConfigModel> list) {

@@ -72,7 +72,7 @@ public class QtalkConfigController {
         return ldapAdService.synchronizeAdUsers(needDeleteData, true);
     }
 
-    @RequestMapping(value = "/selectConfig.qunar", method = RequestMethod.POST)
+    @RequestMapping(value = "/selectConfig.qunar")
     public JsonResult<?> selectLdapConfig() {
         LOGGER.info("selectLdapConfig begin");
         return qtalkConfigService.selectConfig();
