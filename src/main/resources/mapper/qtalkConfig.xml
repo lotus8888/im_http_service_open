@@ -31,4 +31,8 @@
         INSERT  into qtalk_config(config_key, config_value) VALUES
         (#{configKey},#{configValue}) ON conflict(config_key) DO UPDATE SET config_value =#{configValue}
     </insert>
+
+    <delete id="deleteConfig">
+        DELETE from qtalk_config where config_key!='import_way';
+    </delete>
 </mapper>

@@ -47,7 +47,7 @@ public class QtalkConfigController {
             });
 
             ldapAdService.setQtalkConfig(stringMap);
-            JsonResult<?> jsonResult = ldapAdService.synchronizeAdUsers(false, false);
+            JsonResult<?> jsonResult = ldapAdService.synchronizeAdUsers(configRequest.isNeedDeleteData(), false);
             LOGGER.info("saveLdapConfig synchronizeAdUsers result:{}", jsonResult.getErrmsg());
             if (jsonResult.isRet()) {
                 return qtalkConfigService.insertConfig(stringMap);

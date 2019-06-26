@@ -75,4 +75,6 @@ public interface IUserInfo {
                            @Param("gender") Integer gender);
 
     int deleteVcard();
+
+    int deleteDep();
 }

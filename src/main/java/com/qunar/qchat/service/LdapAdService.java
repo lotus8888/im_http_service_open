@@ -112,10 +112,7 @@ public class LdapAdService {
         if (deleteData) {
             // 清除老数据
             LOGGER.warn("delete old data");
-            if (!deleteOldData()) {
-                LOGGER.warn("delete oldData fail");
-                return JsonResultUtils.fail(BaseCode.DATA_DELETE_ERROR.getCode(), BaseCode.DATA_DELETE_ERROR.getMsg());
-            }
+            deleteOldData();
         }
 
         List<String> failSearchBase = new ArrayList<>();
@@ -186,7 +183,7 @@ public class LdapAdService {
 
             return JsonResultUtils.success();
         } catch (NamingException | IOException e) {
-            LOGGER.error("LdapAdService/getAdUsers error");
+            LOGGER.error("LdapAdService/getAdUsers error", e);
             return JsonResultUtils.fail(BaseCode.ERROR.getCode(), BaseCode.ERROR.getMsg());
         }
     }
@@ -356,8 +353,13 @@ public class LdapAdService {
     }
 
     // 清除历史数据
-    private boolean deleteOldData() {
-        return iUserInfo.deleteVcard() == 1 && hostUserDao.deleteHostUsers() == 1;
+    private void deleteOldData() {
+        int delConfig = qtalkConfigDao.deleteConfig();
+
+        int delVcard =iUserInfo.deleteVcard();
+        int delDep =iUserInfo.deleteDep();
+        int delHost =hostUserDao.deleteHostUsers();
+        LOGGER.info("deleteOldData:{},{},{},{}", delConfig, delVcard, delDep, delHost);
     }
 
     // 定时执行

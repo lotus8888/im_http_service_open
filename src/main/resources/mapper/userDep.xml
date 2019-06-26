@@ -129,4 +129,8 @@
     <delete id="deleteVcard">
         DELETE from vcard_version;
     </delete>
+
+    <delete id="deleteDep">
+        DELETE from startalk_dep_table;
+    </delete>
 </mapper>
