@@ -11,6 +11,9 @@ public enum BaseCode {
     BADREQUEST(400, "参数不合法"),
     OP_RESOURCE_NOTFOUND(404, "操作资源不存在"),
     OP_NOT_SUPPORT(405, "不支持的操作"),
+    LDAP_CONFIG_ERROR(406, "ldap配置缺少"),
+    DATA_DELETE_ERROR(407, "数据清除错误"),
+    DATA_SYN_ERROR(408, "部分base同步失败")
     ;
 
     private int code;
