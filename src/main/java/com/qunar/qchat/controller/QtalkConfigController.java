@@ -38,7 +38,7 @@ public class QtalkConfigController {
     public JsonResult<?> saveLdapConfig(@RequestBody QtalkConfigRequest configRequest) {
 
         try {
-            //QtalkConfigRequest configRequest = JacksonUtils.string2Obj(json, QtalkConfigRequest.class);
+            LOGGER.info("saveLdapConfig begin param:{}", JacksonUtils.obj2String(configRequest));
             if (configRequest == null || StringUtils.isNotEmpty(configRequest.check())) {
                 return JsonResultUtils.fail(BaseCode.BADREQUEST.getCode(), BaseCode.BADREQUEST.getMsg());
             }

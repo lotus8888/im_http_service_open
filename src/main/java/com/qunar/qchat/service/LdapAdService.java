@@ -178,8 +178,8 @@ public class LdapAdService {
             List<UserInfoQtalk> userInfoQtalks = hostUserDao.selectOnJobUserFromHostUser(1);
 //            HashMap<String, UserInfoQtalk> dbUser = new HashMap<>();
             HashMap<String, UserInfoQtalk> dbUser = (HashMap) userInfoQtalks.stream().collect(Collectors.toMap(UserInfoQtalk::getUser_id, A -> A, (k1, k2) -> k1));
-            CompletableFuture.runAsync(() -> compareAndPrcess(adUser, dbUser));
-//            compareAndPrcess(adUser, dbUser);
+//            CompletableFuture.runAsync(() -> compareAndPrcess(adUser, dbUser));
+            compareAndPrcess(adUser, dbUser);
 
             return JsonResultUtils.success();
         } catch (NamingException | IOException e) {
@@ -274,6 +274,7 @@ public class LdapAdService {
             userInfoQtalk.setUser_type("u");
             userInfoQtalk.setHire_flag(1);
             String department = "";
+            LOGGER.info("parseUser userId:{}", userId);
             if (attrs.get(departmentMapping) != null) {
                 department = attrs.get(departmentMapping).get().toString();
                 parseDepartment(department, userInfoQtalk);
