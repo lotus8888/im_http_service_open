@@ -305,14 +305,22 @@ public class LdapAdService {
                     userInfoQtalk.setDep1(split[0]);
                     break;
             }
-            // TODO 初始化组织结构
-            insertOrganization();
+            int parentId = 0;
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < split.length; i++) {
+                if (StringUtils.isEmpty(split[i]))
+                    continue;
+                stringBuilder.append("/").append(split[i]);
+                parentId = insertOrganization(stringBuilder.toString(), i + 1, parentId);
+            }
         }
     }
 
     // 插入组织架构
-    private void insertOrganization() {
-
+    private int insertOrganization(String depName,int depLevel, int parentId) {
+        int id = iUserInfo.insertOrUpdateDep(depName, depLevel, parentId);
+        LOGGER.debug("insertOrganization id:{}", id);
+        return id;
     }
 
 
@@ -333,7 +341,7 @@ public class LdapAdService {
     private void insertVcard(UserInfoQtalk userInfoQtalk) {
         LOGGER.info("insert user into vcard_version {}", userInfoQtalk.getUser_id());
         String domain = iUserInfo.getDomain(1);
-        // TODO 头像地址修改
+        //  头像地址修改配置
         String malePhoto = Config.getProperty("malePhoto");
         String famalePhoto = Config.getProperty("famalePhoto");
 

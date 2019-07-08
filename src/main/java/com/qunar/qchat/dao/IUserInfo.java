@@ -77,4 +77,6 @@ public interface IUserInfo {
     int deleteVcard();
 
     int deleteDep();
+
+    int insertOrUpdateDep(@Param("depName") String depName, @Param("depLevel") int depLevel, @Param("parentId") int parentId);
 }
