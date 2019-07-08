@@ -47,7 +47,7 @@ public class QtalkConfigController {
             });
 
             ldapAdService.setQtalkConfig(stringMap);
-            JsonResult<?> jsonResult = ldapAdService.synchronizeAdUsers(configRequest.isNeedDeleteData(), false);
+            JsonResult<?> jsonResult = ldapAdService.synchronizeAdUsers(configRequest.isNeedDeleteData(), false, true);
             LOGGER.info("saveLdapConfig synchronizeAdUsers result:{}", jsonResult.getErrmsg());
             if (jsonResult.isRet()) {
                 return qtalkConfigService.insertConfig(stringMap);
@@ -69,7 +69,7 @@ public class QtalkConfigController {
             JSONObject jsonObject = JSONObject.parseObject(json);
             needDeleteData = jsonObject.getBoolean("needDeleteData");
         }
-        return ldapAdService.synchronizeAdUsers(needDeleteData, true);
+        return ldapAdService.synchronizeAdUsers(needDeleteData, true, false);
     }
 
     @RequestMapping(value = "/selectConfig.qunar")

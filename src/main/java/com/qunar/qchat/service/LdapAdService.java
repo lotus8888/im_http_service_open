@@ -93,7 +93,7 @@ public class LdapAdService {
     }
 
     // 同步用户
-    public JsonResult<?> synchronizeAdUsers(boolean deleteData, boolean needSetConfig) {
+    public JsonResult<?> synchronizeAdUsers(boolean deleteData, boolean needSetConfig, boolean enableJob) {
         if (needSetConfig) {
             qtalkConfig();
         }
@@ -124,7 +124,10 @@ public class LdapAdService {
         if (failSearchBase.size() > 0) {
             return JsonResultUtils.fail(BaseCode.DATA_SYN_ERROR.getCode(), BaseCode.DATA_SYN_ERROR.getMsg(), failSearchBase);
         }
-        scheduleTask();
+        if (enableJob) {
+            LOGGER.info("start ldap job");
+            scheduleTask();
+        }
         return JsonResultUtils.success("success");
     }
 
@@ -378,10 +381,11 @@ public class LdapAdService {
         int interval = StringUtils.isNumeric(intervalTime) ? Integer.parseInt(intervalTime) : 1;
 
         if (scheduledFuture != null) {
+            LOGGER.info("scheduleTask cancel current");
             scheduledFuture.cancel(false);
         }
 
-        service.scheduleAtFixedRate(() -> synchronizeAdUsers(false, true), interval, interval, TimeUnit.HOURS);
+        scheduledFuture = service.scheduleAtFixedRate(() -> synchronizeAdUsers(false, true, false), interval, interval, TimeUnit.HOURS);
     }
 
     public void setQtalkConfig(Map<String, String> qtalkConfig) {
