@@ -39,6 +39,8 @@ import javax.naming.ldap.PagedResultsResponseControl;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,6 +48,10 @@ import java.util.stream.Stream;
 public class LdapAdService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapAdService.class);
+
+    private static final String depSplit = "/";
+    private static final String USER_ID_FORMAT = "^[a-z0-9_.]+$";
+
 
 //    @Autowired
 //    private LdapTemplate ldapTemplate;
@@ -246,7 +252,8 @@ public class LdapAdService {
             LOGGER.info(">>>>>>>>>>>>>此次更新离职{}人", delete.size());
             delete.stream().forEach(x -> {
                 LOGGER.info("update structure update user info >> {}", JacksonUtils.obj2String(x));
-                hostUserDao.updateHostUserHireType(x);
+                if (!"admin".equalsIgnoreCase(x.getUser_id()))
+                    hostUserDao.updateHostUserHireType(x);
             });
         }
         if (update != null) {
@@ -265,11 +272,16 @@ public class LdapAdService {
             UserInfoQtalk userInfoQtalk = new UserInfoQtalk();
             Attributes attrs = sr.getAttributes();
             String userIdMapping = stringMap.getOrDefault("userId", "sAMAccountName");
+            String userId = attrs.get(userIdMapping) == null ? null : attrs.get(userIdMapping).get().toString();
+            if (!checkUserIdFormat(userId)) {
+                LOGGER.warn("parseUser userId:{} is illegal", userId);
+                return;
+            }
+
             String userNameMapping = stringMap.getOrDefault("userName", "cn");
             String departmentMapping = stringMap.getOrDefault("department", "department");
             String mailMapping = stringMap.getOrDefault("email", "mail");
             String sexMapping = stringMap.getOrDefault("sex", "sex");
-            String userId = attrs.get(userIdMapping) == null ? null : attrs.get(userIdMapping).get().toString();
             userInfoQtalk.setUser_id(userId);
             userInfoQtalk.setUser_name(attrs.get(userNameMapping) == null ? null : attrs.get(userNameMapping).get().toString());
             userInfoQtalk.setEmail(attrs.get(mailMapping) == null ? null : attrs.get(mailMapping).get().toString());
@@ -282,7 +294,7 @@ public class LdapAdService {
                 department = attrs.get(departmentMapping).get().toString();
                 parseDepartment(department, userInfoQtalk);
             }
-            userInfoQtalk.setDepartment(department);
+
 
             adUser.put(userId, userInfoQtalk);
         } catch (NamingException e) {
@@ -294,6 +306,9 @@ public class LdapAdService {
     private void parseDepartment(String department, UserInfoQtalk userInfoQtalk) {
         String splitRex = qtalkConfig.getOrDefault("ldapDepartmentSplit", "\\\\");
         if (StringUtils.isNotEmpty(department)) {
+            String fixDepart = department.replaceAll(splitRex, depSplit);
+            fixDepart = fixDepart.startsWith(depSplit) ? fixDepart : depSplit + fixDepart;
+            userInfoQtalk.setDepartment(fixDepart);
             String[] split = department.split(splitRex);
             switch (split.length) {
                 case 5:
@@ -375,7 +390,7 @@ public class LdapAdService {
     }
 
     // 定时执行
-    public void scheduleTask() {
+    private void scheduleTask() {
         qtalkConfig();
         String intervalTime = qtalkConfig.getOrDefault("intervalTime", "1");
         int interval = StringUtils.isNumeric(intervalTime) ? Integer.parseInt(intervalTime) : 1;
@@ -390,5 +405,16 @@ public class LdapAdService {
 
     public void setQtalkConfig(Map<String, String> qtalkConfig) {
         this.qtalkConfig = qtalkConfig;
+    }
+
+
+    // 验证userId 是否合法
+    private static boolean checkUserIdFormat(String userId) {
+        if (StringUtils.isEmpty(userId)) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile(USER_ID_FORMAT);
+        Matcher match = pattern.matcher(userId);
+        return match.matches();
     }
 }
