@@ -183,6 +183,8 @@ public class QUserRegistController {
             return JsonResultUtils.fail(2001, "域不存在");
         }
 
+
+
         System.out.println("add code ...");
         Integer hireUserCount = hostUserDao.selectCountFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
         System.out.println("check fire user count " + hireUserCount);
@@ -190,6 +192,7 @@ public class QUserRegistController {
             int deleteEffective = hostUserDao.deleteFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
             System.out.println("delete fire user count " +  deleteEffective);
         }
+
 
         //验证用户是否已经存在
         List<HostUserModel> hostUserModelList = hostUserDao.selectByHostAndUserId(hostInfoModel.getId(), request.getTelephone());
