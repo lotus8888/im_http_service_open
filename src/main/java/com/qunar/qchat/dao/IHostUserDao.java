@@ -46,4 +46,8 @@ public interface IHostUserDao {
 
     Integer selectAdminFlagByUserId(@Param("userId")String userId,
                                     @Param("hostId")Integer hostId);
+
+    Integer selectCountFireUserByUserId(@Param("userId") String userId, @Param("hostId") Integer hostId);
+
+    Integer deleteFireUserByUserId(@Param("userId") String userId, @Param("hostId") Integer hostId);
 }

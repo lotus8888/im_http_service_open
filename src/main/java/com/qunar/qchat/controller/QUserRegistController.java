@@ -183,6 +183,11 @@ public class QUserRegistController {
             return JsonResultUtils.fail(2001, "域不存在");
         }
 
+        Integer hireUserCount = hostUserDao.selectCountFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
+        if(hireUserCount != null && hireUserCount > 0) {
+            hostUserDao.deleteFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
+        }
+
         //验证用户是否已经存在
         List<HostUserModel> hostUserModelList = hostUserDao.selectByHostAndUserId(hostInfoModel.getId(), request.getTelephone());
         if(CollectionUtils.isNotEmpty(hostUserModelList)) {
