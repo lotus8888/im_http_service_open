@@ -1,6 +1,7 @@
 package com.qunar.qchat.dao.model;
 
 import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * @auth dongzd.zhang
@@ -27,8 +28,13 @@ public class HostUserModel {
     private Integer hireFlag;
     private Integer gender;
     private String password;
-    private Integer initialpwd;
+    private String initialpwd;
     private String psDeptid;
+    private String pwdSalt;
+    private Integer approveFlag;
+    private String userDesc;
+    private Date createTime;
+    private Integer userOrigin;
 
     public BigInteger getId() {
         return id;
@@ -174,11 +180,11 @@ public class HostUserModel {
         this.password = password;
     }
 
-    public Integer getInitialpwd() {
+    public String getInitialpwd() {
         return initialpwd;
     }
 
-    public void setInitialpwd(Integer initialpwd) {
+    public void setInitialpwd(String initialpwd) {
         this.initialpwd = initialpwd;
     }
 
@@ -196,6 +202,46 @@ public class HostUserModel {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public String getPwdSalt() {
+        return pwdSalt;
+    }
+
+    public void setPwdSalt(String pwdSalt) {
+        this.pwdSalt = pwdSalt;
+    }
+
+    public Integer getApproveFlag() {
+        return approveFlag;
+    }
+
+    public void setApproveFlag(Integer approveFlag) {
+        this.approveFlag = approveFlag;
+    }
+
+    public String getUserDesc() {
+        return userDesc;
+    }
+
+    public void setUserDesc(String userDesc) {
+        this.userDesc = userDesc;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Integer getUserOrigin() {
+        return userOrigin;
+    }
+
+    public void setUserOrigin(Integer userOrigin) {
+        this.userOrigin = userOrigin;
     }
 
     @Override
@@ -216,12 +262,17 @@ public class HostUserModel {
                 ", pinyin='" + pinyin + '\'' +
                 ", frozenFlag=" + frozenFlag +
                 ", version=" + version +
-                ", usreType='" + userType + '\'' +
+                ", userType='" + userType + '\'' +
                 ", hireFlag=" + hireFlag +
                 ", gender=" + gender +
                 ", password='" + password + '\'' +
-                ", initialpwd=" + initialpwd +
+                ", initialpwd='" + initialpwd + '\'' +
                 ", psDeptid='" + psDeptid + '\'' +
+                ", pwdSalt='" + pwdSalt + '\'' +
+                ", approveFlag=" + approveFlag +
+                ", userDesc='" + userDesc + '\'' +
+                ", createTime=" + createTime +
+                ", userOrigin=" + userOrigin +
                 '}';
     }
 }

@@ -22,4 +22,28 @@ public interface IHostUserDao {
 
     int updateHostUser(@Param("UserInfoQtalk") UserInfoQtalk userInfoQtalk);
     int deleteHostUsers();
+
+    Integer insertHostUser(HostUserModel hostUserModel);
+
+    List<HostUserModel> selectByHostAndUserId(@Param("hostId") Integer hostId, @Param("userId") String userId);
+
+    Integer searchHostUsersCount(@Param("hostId") Integer hostId,
+                                 @Param("approveFlag") Integer approveFlag,
+                                 @Param("keyword") String keyword);
+
+    List<HostUserModel> searchHostUsers(@Param("hostId") Integer hostId,
+                                        @Param("approveFlag") Integer approveFlag,
+                                        @Param("keyword") String keyword,
+                                        @Param("limit") Integer limit,
+                                        @Param("offset") Integer offset);
+
+    Integer updateApproveStatus(@Param("ids") List<Integer> ids,
+                                @Param("status") Integer status,
+                                @Param("hostId") Integer hostId);
+
+    Integer selectApproveStatus(@Param("userId") String userId,
+                                @Param("hostId") Integer hostId);
+
+    Integer selectAdminFlagByUserId(@Param("userId")String userId,
+                                    @Param("hostId")Integer hostId);
 }
