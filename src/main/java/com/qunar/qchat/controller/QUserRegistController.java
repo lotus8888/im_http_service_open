@@ -83,9 +83,18 @@ public class QUserRegistController {
         }*/
 
         if(SEND_SMS_TYPE_REGIST.equals(request.getType())) {
+
             boolean isToCDomain = domainService.isToCDomain(request.getDomain());
             if (!isToCDomain) {
                 return JsonResultUtils.fail(2002, "当前域不需要注册");
+            }
+
+            System.out.println("add code ...");
+            Integer hireUserCount = hostUserDao.selectCountFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
+            System.out.println("check fire user count " + hireUserCount);
+            if(hireUserCount != null && hireUserCount > 0) {
+                int deleteEffective = hostUserDao.deleteFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
+                System.out.println("delete fire user count " +  deleteEffective);
             }
 
             List<HostUserModel> hostUserModelList = hostUserDao.selectByHostAndUserId(hostInfoModel.getId(), request.getTelephone());
@@ -182,17 +191,6 @@ public class QUserRegistController {
         if(hostInfoModel == null) {
             return JsonResultUtils.fail(2001, "域不存在");
         }
-
-
-
-        System.out.println("add code ...");
-        Integer hireUserCount = hostUserDao.selectCountFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
-        System.out.println("check fire user count " + hireUserCount);
-        if(hireUserCount != null && hireUserCount > 0) {
-            int deleteEffective = hostUserDao.deleteFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
-            System.out.println("delete fire user count " +  deleteEffective);
-        }
-
 
         //验证用户是否已经存在
         List<HostUserModel> hostUserModelList = hostUserDao.selectByHostAndUserId(hostInfoModel.getId(), request.getTelephone());

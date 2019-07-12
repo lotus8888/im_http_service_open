@@ -62,6 +62,7 @@ public class UserRegistServiceImpl implements IUserRegistService{
     private IVCardInfoDao ivCardInfoDao;
 
     private static final String REGIST_USER_DEFAULT_DEPT = "/注册用户";
+    private static final String DEFAULT_IMG = "/file/v2/download/214b6c4f070cf08a1ed27dbd73fdee5d.png";
 
 
     @Override
@@ -127,7 +128,7 @@ public class UserRegistServiceImpl implements IUserRegistService{
         VCardInfoModel newVCardInfo = new VCardInfoModel();
         newVCardInfo.setUsername(tel);
         newVCardInfo.setHost(domain);
-        newVCardInfo.setUrl(Config.getProperty("default_pic_url"));
+        newVCardInfo.setUrl(DEFAULT_IMG);
         newVCardInfo.setVersion(1);
         newVCardInfo.setProfileVersion(1);
         ivCardInfoDao.insertVCardVersion(newVCardInfo);
