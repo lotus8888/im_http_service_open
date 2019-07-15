@@ -166,7 +166,7 @@ public class UserRegistServiceImpl implements IUserRegistService{
         args.put("system", "vs_qtalk_admin");
         args.put("type", "headline");
 
-        String msgSendUrl = Config.getProperty("msg_send_url");
+        String msgSendUrl = Config.getProperty("push_message_notice_url");
 
         log.info("发送文件传输助手消息url：" + msgSendUrl + "\r\n" +
                 "参数：" + JSON.toJSONString(Arrays.asList(args)));
