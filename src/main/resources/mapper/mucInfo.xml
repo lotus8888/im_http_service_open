@@ -112,9 +112,13 @@
         select muc_name || '@' || domain from user_register_mucs where username = #{userName};
     </select>
     <select id="selectIncrementMucVCards" resultMap="mucIncrementInfoResultMap">
-        select <include refid="column_all"/> from muc_vcard_info where muc_name in
-        <foreach collection="ids" separator="," item="id" open="(" close=")">#{id}</foreach>
+        select <include refid="column_all"/> from muc_vcard_info where 1=1
+        <if test = "ids != null and ids.size > 0">
+            muc_name in
+            <foreach collection="ids" separator="," item="id" open="(" close=")">#{id}</foreach>
+        </if>
         and update_time > #{updateTime}
+
     </select>
 
 </mapper>
