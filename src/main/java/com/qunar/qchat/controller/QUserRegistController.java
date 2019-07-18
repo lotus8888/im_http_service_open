@@ -92,7 +92,7 @@ public class QUserRegistController {
 
             Integer hireUserCount = hostUserDao.selectCountFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
             if(hireUserCount != null && hireUserCount > 0) {
-                hostUserDao.deleteFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
+                hostUserDao.deleteFireUserByUserId(request.getTelephone(), hostInfoModel.getId(), hostInfoModel.getHost());
             }
 
             List<HostUserModel> hostUserModelList = hostUserDao.selectByHostAndUserId(hostInfoModel.getId(), request.getTelephone());
