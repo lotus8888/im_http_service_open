@@ -184,7 +184,7 @@
     </update>
 
     <delete id="deleteHostUsers">
-        DELETE from host_users;
+        DELETE from host_users where user_id!='admin';
     </delete>
 
     <insert id="insertHostUser" parameterType="com.qunar.qchat.dao.model.HostUserModel">
