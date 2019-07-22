@@ -49,5 +49,5 @@ public interface IHostUserDao {
 
     Integer selectCountFireUserByUserId(@Param("userId") String userId, @Param("hostId") Integer hostId);
 
-    Integer deleteFireUserByUserId(@Param("userId") String userId, @Param("hostId") Integer hostId);
+    Integer deleteFireUserByUserId(@Param("userId") String userId, @Param("hostId") Integer hostId, @Param("host") String host);
 }

@@ -151,7 +151,7 @@
 
 ## 6.获取用户信息
 ```
-接口：/newapi/domain/get_vcard_info.quna
+接口：/newapi/domain/get_vcard_info.qunar
 请求方式：POST
 参数：
 [{

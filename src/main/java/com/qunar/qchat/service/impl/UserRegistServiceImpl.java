@@ -114,10 +114,11 @@ public class UserRegistServiceImpl implements IUserRegistService{
         newUser.setTel(tel);
         newUser.setPwdSalt(salt);
         newUser.setPassword(encPassword);
+        //newUser.setInitialpwd("******");
         newUser.setVersion(1);
         newUser.setDep1(REGIST_USER_DEFAULT_DEPT);
         newUser.setDepartment(REGIST_USER_DEFAULT_DEPT);
-        newUser.setHireFlag(0);
+        newUser.setHireFlag(needApprove);
         //0-未审批 1-已审批
         newUser.setApproveFlag(needApprove);
         newUser.setUserDesc(desc);

@@ -259,6 +259,7 @@
         and user_id != 'file-transfer'
         and user_id != 'admin'
         and user_origin = 1
+        and (hire_flag = 1 or (hire_flag = 0 and approve_flag != 1))
     </select>
 
     <select id="searchHostUsers" resultMap="HostUserModelForHost">
@@ -272,12 +273,17 @@
         and user_id != 'file-transfer'
         and user_id != 'admin'
         and user_origin = 1
+        and (hire_flag = 1 or (hire_flag = 0 and approve_flag != 1))
         order by create_time desc
         limit #{limit} offset #{offset}
 
     </select>
     <update id="updateApproveStatus">
-        update host_users set approve_flag = #{status}, hire_flag = 1, version = (select max(version) from host_users) + 1 where host_id = #{hostId} and id in
+        update host_users set approve_flag = #{status},
+        <if test="status ==  1">
+            hire_flag = 1,
+        </if>
+        version = (select max(version) from host_users) + 1 where host_id = #{hostId} and id in
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
@@ -292,11 +298,11 @@
     </select>
 
     <select id="selectCountFireUserByUserId" resultType="int">
-        select count(*) from host_users where user_id = #{userId} and host_id = #{hostId} and hire_flag = 0
+        select count(*) from host_users where user_id = #{userId} and host_id = #{hostId} and hire_flag = 0 and approve_flag = 1
     </select>
 
     <delete id="deleteFireUserByUserId">
         delete from host_users where user_id = #{userId} and host_id = #{hostId} and hire_flag = 0;
-        delete from vcard_version where username = #{userId};
+        delete from vcard_version where username = #{userId} and host = #{host};
     </delete>
 </mapper>

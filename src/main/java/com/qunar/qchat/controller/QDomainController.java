@@ -206,7 +206,8 @@ public class QDomainController {
                             resultBean.setDomain(request.getDomain());
                             resultBean.setCommenturl(QChatConstant.VCARD_COMMON_URL);
                             resultBean.setMood(StringUtils.defaultString(result.getMood(), ""));
-                            resultBean.setAdminFlag((adminFlag != null && adminFlag == 1));
+                            boolean isToCDomain = domainService.isToCDomain(request.getDomain());
+                            resultBean.setAdminFlag((isToCDomain && adminFlag != null && adminFlag == 1));
                             users.add(resultBean);
                         }
                     }

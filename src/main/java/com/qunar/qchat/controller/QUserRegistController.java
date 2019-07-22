@@ -89,12 +89,10 @@ public class QUserRegistController {
                 return JsonResultUtils.fail(2002, "当前域不需要注册");
             }
 
-            System.out.println("add code ...");
+
             Integer hireUserCount = hostUserDao.selectCountFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
-            System.out.println("check fire user count " + hireUserCount);
             if(hireUserCount != null && hireUserCount > 0) {
-                int deleteEffective = hostUserDao.deleteFireUserByUserId(request.getTelephone(), hostInfoModel.getId());
-                System.out.println("delete fire user count " +  deleteEffective);
+                hostUserDao.deleteFireUserByUserId(request.getTelephone(), hostInfoModel.getId(), hostInfoModel.getHost());
             }
 
             List<HostUserModel> hostUserModelList = hostUserDao.selectByHostAndUserId(hostInfoModel.getId(), request.getTelephone());
@@ -113,7 +111,9 @@ public class QUserRegistController {
 
         boolean sendResult = userRegistService.sendRegistSmsValidateCode(request.getTelephone(), request.getDomain());
         if(sendResult) {
-            return JsonResultUtils.success();
+            //查询当前域是否需要注册审批
+            Integer needApprove = domainService.getDomainNeedApprove(request.getDomain());
+            return JsonResultUtils.success(String.valueOf(needApprove));
         }
         return JsonResultUtils.fail(2000, "发送失败");
     }
@@ -306,129 +306,6 @@ public class QUserRegistController {
         Map<String, String> result = Maps.newHashMap();
         result.put("type", isToCDomain ? "1" : "0");
         return JsonResultUtils.success(result);
-    }
-
-    /**
-     * 上传域对应的二维码图片.
-     * @param qrCodeImg
-     * @param domain
-     * @return JsonResult
-     * */
-    @RequestMapping(value = "/userregist/upload_qrcode.qunar",method = RequestMethod.POST)
-    @ResponseBody
-    public JsonResult<?> uploadQRCode(@RequestParam("qrCode") MultipartFile qrCodeImg,
-                                      @RequestParam("domain") String domain,
-                                      HttpServletRequest httpServletRequest) {
-        HostInfoModel hostInfoModel = domainService.getDomain(domain);
-        if(hostInfoModel == null) {
-            return JsonResultUtils.fail(2008, "域不存在");
-        }
-        boolean uploadResult = uploadFileToLocal(qrCodeImg, domain, httpServletRequest);
-        if(uploadResult) {
-            String qrCodeUrl = "/newapi/nck/userregist/download_qrcode.qunar?domain=" + domain;
-            return JsonResultUtils.success(qrCodeUrl);
-        }
-        return JsonResultUtils.fail(2009, "上传失败");
-    }
-
-
-    private boolean uploadFileToLocal(MultipartFile qrCodeImg,
-                                      String domain,
-                                      HttpServletRequest httpServletRequest) {
-        String originFileName = qrCodeImg.getOriginalFilename();
-
-        String suffix = originFileName.substring(originFileName.lastIndexOf('.'));
-
-        File uploadDir = new File(getUploadRootPath(httpServletRequest) + "upload/qrcode/");
-        if(!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
-        boolean finalResult = true;
-
-        String fileName = UUID.randomUUID().toString().replace("-","");
-        String fullFileName = getUploadRootPath(httpServletRequest) + "upload/qrcode/" + fileName + suffix;
-
-        File uploadFile = new File(fullFileName);
-        if(!uploadFile.exists()) {
-            try {
-                uploadFile.createNewFile();
-            }catch (IOException ex) {
-                log.error("upload qr code image, create target file error, {}", ExceptionUtils.getStackTrace(ex));
-                finalResult = false;
-            }
-        }
-
-        try {
-            qrCodeImg.transferTo(uploadFile);
-        }catch (IOException ex) {
-            log.error("upload qr code image error {}", ExceptionUtils.getStackTrace(ex));
-            finalResult = false;
-        }
-
-        if(finalResult) {
-            finalResult = domainService.updateDomainQRCodePath(fullFileName, domain);
-        }
-        return finalResult;
-    }
-
-    private String getUploadRootPath(HttpServletRequest httpServletRequest) {
-        //return httpServletRequest.getSession().getServletContext().getRealPath("/");
-        return Config.getProperty("qr_upload_path");
-    }
-
-    /**
-     * 访问某个域名对应的二维码图片.
-     * @param domain
-     * @param response
-     * */
-    @RequestMapping(value = "/userregist/download_qrcode.qunar", method = RequestMethod.GET)
-    public void downloadQRCode(@RequestParam("domain") String domain,
-                               HttpServletResponse response) throws Exception {
-
-        HostInfoModel hostInfoModel = domainService.getDomain(domain);
-        if(hostInfoModel == null) {
-            throw new IllegalArgumentException("域 " + domain + "不存在");
-        }
-
-
-        BufferedInputStream in = null ;
-        BufferedOutputStream out = null ;
-
-        String qrCodePath = domainService.getDomainQRCodePath(domain);
-
-        //设置响应头
-        //String domainReplaceName = domain.replaceAll("\\.","_") + "_qrcode" + qrCodePath.substring(qrCodePath.lastIndexOf("."));
-        //response.setHeader("Content-Disposition","attachment;filename=" + domainReplaceName);
-
-        File file = new File(qrCodePath);
-        try {
-            in = new BufferedInputStream(new FileInputStream(file));
-            out = new BufferedOutputStream(response.getOutputStream());
-        }catch (IOException ex) {
-            log.error("create FileWriter object failed {}", ExceptionUtils.getStackTrace(ex));
-            throw ex;
-        }
-
-
-        byte[] buffer = new byte[2048];
-        int len = -1;
-        while ((len = in.read(buffer, 0, buffer.length)) != -1 ) {
-            out.write(buffer, 0, len);
-        }
-        out.flush();
-
-        try{
-            if(in != null) {
-                in.close();
-            }
-
-            if(out != null) {
-                out.close();
-            }
-        }catch (IOException ex) {
-            log.error("io stream close failed, {}", ExceptionUtils.getStackTrace(ex));
-        }
     }
 
     /**
