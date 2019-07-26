@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.qunar.qchat.constants.Config;
 import com.qunar.qchat.constants.QChatConstant;
 import com.qunar.qchat.dao.IFloginUserDao;
+import com.qunar.qchat.dao.IHostUserDao;
 import com.qunar.qchat.dao.IVCardInfoDao;
+import com.qunar.qchat.dao.model.HostInfoModel;
 import com.qunar.qchat.dao.model.VCardInfoModel;
 import com.qunar.qchat.model.JsonResult;
 import com.qunar.qchat.model.request.GetUserStatusRequest;
@@ -13,6 +15,7 @@ import com.qunar.qchat.model.result.GetQChatVcardResult;
 import com.qunar.qchat.model.result.GetQTalkVcardResult;
 import com.qunar.qchat.model.result.GetVCardInfoResult;
 import com.qunar.qchat.model.result.SearchVCardResult;
+import com.qunar.qchat.service.IDomainService;
 import com.qunar.qchat.utils.CommonRedisUtil;
 import com.qunar.qchat.utils.HttpClientUtils;
 import com.qunar.qchat.utils.JsonResultUtils;
@@ -47,6 +50,11 @@ public class QDomainController {
     private IVCardInfoDao vCardInfoDao;
     @Autowired
     private IFloginUserDao floginUserDao;
+
+    @Autowired
+    private IDomainService domainService;
+    @Autowired
+    private IHostUserDao hostUserDao;
 
     @RequestMapping(value = "/get_user_status.qunar", method = RequestMethod.POST)
     public JsonResult<?> getUserStatus(@RequestBody GetUserStatusRequest request) {
@@ -181,6 +189,8 @@ public class QDomainController {
                         VCardInfoModel result = vCardInfoDao.selectByUsernameAndHost(userInfo.getUser(), request.getDomain(), userInfo.getVersion());
                         if(Objects.nonNull(result)) {
                             GetVCardInfoResult resultBean = new GetVCardInfoResult();
+                            HostInfoModel hostInfoModel = domainService.getDomain(request.getDomain());
+                            Integer adminFlag = hostUserDao.selectAdminFlagByUserId(userInfo.getUser(), hostInfoModel.getId());
                             resultBean.setType("");
                             resultBean.setLoginName(StringUtils.defaultString(userInfo.getUser(), ""));
                             resultBean.setEmail("");
@@ -196,6 +206,8 @@ public class QDomainController {
                             resultBean.setDomain(request.getDomain());
                             resultBean.setCommenturl(QChatConstant.VCARD_COMMON_URL);
                             resultBean.setMood(StringUtils.defaultString(result.getMood(), ""));
+                            boolean isToCDomain = domainService.isToCDomain(request.getDomain());
+                            resultBean.setAdminFlag((isToCDomain && adminFlag != null && adminFlag == 1));
                             users.add(resultBean);
                         }
                     }

@@ -79,6 +79,7 @@ public class UserInfoQtalk {
 
     @JsonIgnore
     private String leader;
+    private boolean visibleFlag = true;
 
     @Override
     public boolean equals(Object o) {

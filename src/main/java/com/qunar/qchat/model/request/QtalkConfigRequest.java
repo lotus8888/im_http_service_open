@@ -13,6 +13,7 @@ public class QtalkConfigRequest {
     private String ldapResultMapping;
     private String ldapDepartmentSplit;
     private String intervalTime;
+    private boolean needDeleteData;
 
 
     public String getLdapUrl() {
@@ -78,6 +79,15 @@ public class QtalkConfigRequest {
     public void setIntervalTime(String intervalTime) {
         this.intervalTime = intervalTime;
     }
+
+    public boolean isNeedDeleteData() {
+        return needDeleteData;
+    }
+
+    public void setNeedDeleteData(boolean needDeleteData) {
+        this.needDeleteData = needDeleteData;
+    }
+
     static class ResultMapping{
         private String userId;
         private String userName;

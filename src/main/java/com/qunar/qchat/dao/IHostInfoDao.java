@@ -22,4 +22,42 @@ public interface IHostInfoDao {
       * @return
      */
     HostInfoModel selectDefaultHost();
+
+
+    /**
+     * 根据域id查询域类型.
+     * @param host
+     * @return Integer 0 - toB, 1 - toC
+     * */
+    Integer selectHostType(@Param("host") String host);
+
+    /**
+     * 根据host查询域数量.
+     * @param host
+     * @return Integer
+     * */
+    Integer selectHostCountByHost(@Param("host") String host);
+
+    /**
+     * 更新host对应的二维码路径.
+     * @param qrCodrPath
+     * @param host
+     * @return Integer
+     * */
+    Integer updateHostQRCode(@Param("qrCodrPath") String qrCodrPath, @Param("host") String host);
+
+    /**
+     * 查询qrCodePath.
+     * @param host
+     * @return String
+     * */
+    String selectHostQRCodePath(@Param("host") String host);
+
+
+    /**
+     * 查询域是否开启了注册审批.
+     * @param host
+     * @return Integer
+     * */
+    Integer selectNeedApproveByHost(@Param("host") String host);
 }

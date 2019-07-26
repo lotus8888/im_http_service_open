@@ -8,10 +8,8 @@ import com.qunar.qchat.dao.model.InviteInfoModel;
 import com.qunar.qchat.model.JsonResult;
 import com.qunar.qchat.model.request.GetDepsRequest;
 import com.qunar.qchat.model.request.GetInviteInfoRequest;
-import com.qunar.qchat.service.LdapAdService;
 import com.qunar.qchat.utils.CookieUtils;
 import com.qunar.qchat.utils.HttpClientUtils;
-import com.qunar.qchat.utils.JacksonUtils;
 import com.qunar.qchat.utils.JsonResultUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -123,13 +121,5 @@ public class QBaseController {
         }
     }
 
-    @Autowired
-    LdapAdService ldapAdService;
 
-    @RequestMapping(value = "/initUser.qunar", method = RequestMethod.GET)
-    public Object synchronizeAdUser(@RequestParam(required = false, defaultValue = "false") boolean needDeleteData){
-        LOGGER.info("synchronizeAdUser user begin");
-        return ldapAdService.synchronizeAdUsers(needDeleteData, true);
-
-    }
 }

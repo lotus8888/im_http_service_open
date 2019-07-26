@@ -28,4 +28,11 @@ public interface IVCardInfoDao {
     VCardInfoModel selectByUsernameAndHost(@Param("username") String username,
                                            @Param("host") String host,
                                            @Param("version") Integer version);
+
+    /**
+     * 新增名片.
+     * @param vCardInfoModel
+     * @return
+     * */
+    Integer insertVCardVersion(VCardInfoModel vCardInfoModel);
 }

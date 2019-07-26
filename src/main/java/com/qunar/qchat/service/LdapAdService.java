@@ -38,10 +38,9 @@ import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.PagedResultsResponseControl;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,6 +48,10 @@ import java.util.stream.Stream;
 public class LdapAdService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapAdService.class);
+
+    private static final String depSplit = "/";
+    private static final String USER_ID_FORMAT = "^[a-z0-9_.]+$";
+
 
 //    @Autowired
 //    private LdapTemplate ldapTemplate;
@@ -96,7 +99,7 @@ public class LdapAdService {
     }
 
     // 同步用户
-    public JsonResult<?> synchronizeAdUsers(boolean deleteData, boolean needSetConfig) {
+    public JsonResult<?> synchronizeAdUsers(boolean deleteData, boolean needSetConfig, boolean enableJob) {
         if (needSetConfig) {
             qtalkConfig();
         }
@@ -115,10 +118,7 @@ public class LdapAdService {
         if (deleteData) {
             // 清除老数据
             LOGGER.warn("delete old data");
-            if (!deleteOldData()) {
-                LOGGER.warn("delete oldData fail");
-                return JsonResultUtils.fail(BaseCode.DATA_DELETE_ERROR.getCode(), BaseCode.DATA_DELETE_ERROR.getMsg());
-            }
+            deleteOldData();
         }
 
         List<String> failSearchBase = new ArrayList<>();
@@ -130,7 +130,10 @@ public class LdapAdService {
         if (failSearchBase.size() > 0) {
             return JsonResultUtils.fail(BaseCode.DATA_SYN_ERROR.getCode(), BaseCode.DATA_SYN_ERROR.getMsg(), failSearchBase);
         }
-        scheduleTask();
+        if (enableJob) {
+            LOGGER.info("start ldap job");
+            scheduleTask();
+        }
         return JsonResultUtils.success("success");
     }
 
@@ -182,13 +185,14 @@ public class LdapAdService {
             } while ((cookie != null) && (cookie.length != 0));
 
             List<UserInfoQtalk> userInfoQtalks = hostUserDao.selectOnJobUserFromHostUser(1);
-            HashMap<String, UserInfoQtalk> dbUser = new HashMap<>();
-            dbUser = (HashMap) userInfoQtalks.stream().collect(Collectors.toMap(UserInfoQtalk::getUser_id, A -> A, (k1, k2) -> k1));
+//            HashMap<String, UserInfoQtalk> dbUser = new HashMap<>();
+            HashMap<String, UserInfoQtalk> dbUser = (HashMap) userInfoQtalks.stream().collect(Collectors.toMap(UserInfoQtalk::getUser_id, A -> A, (k1, k2) -> k1));
+//            CompletableFuture.runAsync(() -> compareAndPrcess(adUser, dbUser));
             compareAndPrcess(adUser, dbUser);
 
             return JsonResultUtils.success();
         } catch (NamingException | IOException e) {
-            LOGGER.error("LdapAdService/getAdUsers error");
+            LOGGER.error("LdapAdService/getAdUsers error", e);
             return JsonResultUtils.fail(BaseCode.ERROR.getCode(), BaseCode.ERROR.getMsg());
         }
     }
@@ -222,7 +226,7 @@ public class LdapAdService {
         });
 
         both.keySet().stream().forEach(key -> {
-            UserInfoQtalk userInfoQtalk = dbUser.get(key);
+            UserInfoQtalk userInfoQtalk = adUser.get(key);
             userInfoQtalk.setVersion(nextVersion);
             updatePg.add(userInfoQtalk);
         });
@@ -248,7 +252,8 @@ public class LdapAdService {
             LOGGER.info(">>>>>>>>>>>>>此次更新离职{}人", delete.size());
             delete.stream().forEach(x -> {
                 LOGGER.info("update structure update user info >> {}", JacksonUtils.obj2String(x));
-                hostUserDao.updateHostUserHireType(x);
+                if (!"admin".equalsIgnoreCase(x.getUser_id()))
+                    hostUserDao.updateHostUserHireType(x);
             });
         }
         if (update != null) {
@@ -267,11 +272,16 @@ public class LdapAdService {
             UserInfoQtalk userInfoQtalk = new UserInfoQtalk();
             Attributes attrs = sr.getAttributes();
             String userIdMapping = stringMap.getOrDefault("userId", "sAMAccountName");
+            String userId = attrs.get(userIdMapping) == null ? null : attrs.get(userIdMapping).get().toString();
+            if (!checkUserIdFormat(userId)) {
+                LOGGER.warn("parseUser userId:{} is illegal", userId);
+                return;
+            }
+
             String userNameMapping = stringMap.getOrDefault("userName", "cn");
             String departmentMapping = stringMap.getOrDefault("department", "department");
             String mailMapping = stringMap.getOrDefault("email", "mail");
             String sexMapping = stringMap.getOrDefault("sex", "sex");
-            String userId = attrs.get(userIdMapping) == null ? null : attrs.get(userIdMapping).get().toString();
             userInfoQtalk.setUser_id(userId);
             userInfoQtalk.setUser_name(attrs.get(userNameMapping) == null ? null : attrs.get(userNameMapping).get().toString());
             userInfoQtalk.setEmail(attrs.get(mailMapping) == null ? null : attrs.get(mailMapping).get().toString());
@@ -279,11 +289,12 @@ public class LdapAdService {
             userInfoQtalk.setUser_type("u");
             userInfoQtalk.setHire_flag(1);
             String department = "";
+            LOGGER.info("parseUser userId:{}", userId);
             if (attrs.get(departmentMapping) != null) {
                 department = attrs.get(departmentMapping).get().toString();
                 parseDepartment(department, userInfoQtalk);
             }
-            userInfoQtalk.setDepartment(department);
+
 
             adUser.put(userId, userInfoQtalk);
         } catch (NamingException e) {
@@ -295,6 +306,9 @@ public class LdapAdService {
     private void parseDepartment(String department, UserInfoQtalk userInfoQtalk) {
         String splitRex = qtalkConfig.getOrDefault("ldapDepartmentSplit", "\\\\");
         if (StringUtils.isNotEmpty(department)) {
+            String fixDepart = department.replaceAll(splitRex, depSplit);
+            fixDepart = fixDepart.startsWith(depSplit) ? fixDepart : depSplit + fixDepart;
+            userInfoQtalk.setDepartment(fixDepart);
             String[] split = department.split(splitRex);
             switch (split.length) {
                 case 5:
@@ -309,14 +323,22 @@ public class LdapAdService {
                     userInfoQtalk.setDep1(split[0]);
                     break;
             }
-            // TODO 初始化组织结构
-            insertOrganization();
+            int parentId = 0;
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < split.length; i++) {
+                if (StringUtils.isEmpty(split[i]))
+                    continue;
+                stringBuilder.append("/").append(split[i]);
+                parentId = insertOrganization(stringBuilder.toString(), i + 1, parentId);
+            }
         }
     }
 
     // 插入组织架构
-    private void insertOrganization() {
-
+    private int insertOrganization(String depName,int depLevel, int parentId) {
+        int id = iUserInfo.insertOrUpdateDep(depName, depLevel, parentId);
+        LOGGER.debug("insertOrganization id:{}", id);
+        return id;
     }
 
 
@@ -337,7 +359,7 @@ public class LdapAdService {
     private void insertVcard(UserInfoQtalk userInfoQtalk) {
         LOGGER.info("insert user into vcard_version {}", userInfoQtalk.getUser_id());
         String domain = iUserInfo.getDomain(1);
-        // TODO 头像地址修改
+        //  头像地址修改配置
         String malePhoto = Config.getProperty("malePhoto");
         String famalePhoto = Config.getProperty("famalePhoto");
 
@@ -358,24 +380,41 @@ public class LdapAdService {
     }
 
     // 清除历史数据
-    private boolean deleteOldData() {
-        return iUserInfo.deleteVcard() == 1 && hostUserDao.deleteHostUsers() == 1;
+    private void deleteOldData() {
+        int delConfig = qtalkConfigDao.deleteConfig();
+
+        int delVcard =iUserInfo.deleteVcard();
+        int delDep =iUserInfo.deleteDep();
+        int delHost =hostUserDao.deleteHostUsers();
+        LOGGER.info("deleteOldData:{},{},{},{}", delConfig, delVcard, delDep, delHost);
     }
 
     // 定时执行
-    public void scheduleTask() {
+    private void scheduleTask() {
         qtalkConfig();
         String intervalTime = qtalkConfig.getOrDefault("intervalTime", "1");
         int interval = StringUtils.isNumeric(intervalTime) ? Integer.parseInt(intervalTime) : 1;
 
         if (scheduledFuture != null) {
+            LOGGER.info("scheduleTask cancel current");
             scheduledFuture.cancel(false);
         }
 
-        service.scheduleAtFixedRate(() -> synchronizeAdUsers(false, true), interval, interval, TimeUnit.HOURS);
+        scheduledFuture = service.scheduleAtFixedRate(() -> synchronizeAdUsers(false, true, false), interval, interval, TimeUnit.HOURS);
     }
 
     public void setQtalkConfig(Map<String, String> qtalkConfig) {
         this.qtalkConfig = qtalkConfig;
+    }
+
+
+    // 验证userId 是否合法
+    private static boolean checkUserIdFormat(String userId) {
+        if (StringUtils.isEmpty(userId)) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile(USER_ID_FORMAT);
+        Matcher match = pattern.matcher(userId);
+        return match.matches();
     }
 }

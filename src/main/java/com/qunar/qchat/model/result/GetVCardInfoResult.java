@@ -22,6 +22,7 @@ public class GetVCardInfoResult {
     private String domain;
     private String commenturl;
     private String mood;
+    private Boolean adminFlag;
 
     public String getType() {
         return type;
@@ -127,6 +128,14 @@ public class GetVCardInfoResult {
         this.mood = mood;
     }
 
+    public Boolean getAdminFlag() {
+        return adminFlag;
+    }
+
+    public void setAdminFlag(Boolean adminFlag) {
+        this.adminFlag = adminFlag;
+    }
+
     @Override
     public String toString() {
         return "GetVCardInfoResult{" +
@@ -142,6 +151,8 @@ public class GetVCardInfoResult {
                 ", username='" + username + '\'' +
                 ", domain='" + domain + '\'' +
                 ", commenturl='" + commenturl + '\'' +
+                ", mood='" + mood + '\'' +
+                ", adminFlag=" + adminFlag +
                 '}';
     }
 }
