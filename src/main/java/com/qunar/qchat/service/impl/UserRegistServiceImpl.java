@@ -62,7 +62,7 @@ public class UserRegistServiceImpl implements IUserRegistService{
     private IVCardInfoDao ivCardInfoDao;
 
     private static final String REGIST_USER_DEFAULT_DEPT = "/注册用户";
-    private static final String DEFAULT_IMG = "/file/v2/download/214b6c4f070cf08a1ed27dbd73fdee5d.png";
+    private static final String DEFAULT_IMG = "/file/v2/download/79bbbdea3e47a2f07fc9a003d4eb7d54.png";
 
 
     @Override
