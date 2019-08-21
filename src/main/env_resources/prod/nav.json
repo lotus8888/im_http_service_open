@@ -26,8 +26,9 @@
     "foundConfigUrl":"http://ip:8080//startalk/management/find/get/navigation"
   },
   "ability": {
-    "searchurl": "http://ip:8080/py/search",
-    "showmsgstat": true
+   "searchurl": "http://ip:8080/py/search",
+   "new_searchurl":"http://ip:8080/py/search", 
+   "showmsgstat": true
   },
   "RNAndroidAbility": {
     "RNMineView": true,
