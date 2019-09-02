@@ -2,6 +2,7 @@ package com.qunar.qchat.dao;
 
 
 import com.qunar.qchat.dao.model.UserInfoQtalk;
+import com.qunar.qchat.dao.model.UserPasswordModel;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
@@ -44,30 +45,33 @@ public interface IUserInfo {
 
     /**
      * 获取手机号
+     *
      * @param userId
      * @param hostId
      * @return
      */
-    String getUserMobile(@Param("userId")String userId,@Param("hostId")Integer hostId);
+    String getUserMobile(@Param("userId") String userId, @Param("hostId") Integer hostId);
 
     /**
      * 获取领导
+     *
      * @param userId
      * @param hostId
      * @return
      */
-    String getUserLeader(@Param("userId")String userId,@Param("hostId")Integer hostId);
+    String getUserLeader(@Param("userId") String userId, @Param("hostId") Integer hostId);
 
     /**
      * 获取就职状态 1在职 0离职
+     *
      * @param userId
      * @param hostId
      * @return
      */
-    Integer getUserHireFlag(@Param("userId")String userId,@Param("hostId")Integer hostId);
+    Integer getUserHireFlag(@Param("userId") String userId, @Param("hostId") Integer hostId);
 
 
-    UserInfoQtalk selectUserByUserId(@Param("userId")String userId,@Param("hostId")Integer hostId);
+    UserInfoQtalk selectUserByUserId(@Param("userId") String userId, @Param("hostId") Integer hostId);
 
     int insertVcardVersion(@Param("username") String username,
                            @Param("host") String host,
@@ -79,4 +83,6 @@ public interface IUserInfo {
     int deleteDep();
 
     int insertOrUpdateDep(@Param("depName") String depName, @Param("depLevel") int depLevel, @Param("parentId") int parentId);
+
+    UserPasswordModel getUserPassword(@Param("param") String param,@Param("host")String host);
 }

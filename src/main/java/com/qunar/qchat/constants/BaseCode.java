@@ -13,7 +13,10 @@ public enum BaseCode {
     OP_NOT_SUPPORT(405, "不支持的操作"),
     LDAP_CONFIG_ERROR(406, "ldap配置缺少"),
     DATA_DELETE_ERROR(407, "数据清除错误"),
-    DATA_SYN_ERROR(408, "部分base同步失败")
+    DATA_SYN_ERROR(408, "部分base同步失败"),
+    USER_LOGIN_INFO_LOCK(409,"用户信息缺失登录失败"),
+    USER_LOGIN_AUTH_FAIL(410,"用户名或密码失败"),
+    USER_LOGIN_NO_USER(411,"用户不存在"),
     ;
 
     private int code;
