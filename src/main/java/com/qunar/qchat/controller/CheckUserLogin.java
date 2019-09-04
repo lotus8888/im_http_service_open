@@ -1,20 +1,15 @@
 package com.qunar.qchat.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Strings;
 import com.qunar.qchat.dao.IUserInfo;
 import com.qunar.qchat.dao.model.UserCheckTokenModel;
 import com.qunar.qchat.dao.model.UserPasswordModel;
 import com.qunar.qchat.dao.model.UserPasswordRO;
 import com.qunar.qchat.model.JsonResult;
-import com.qunar.qchat.model.request.CheckConfigRequest;
-import com.qunar.qchat.model.result.CheckConfigResult;
 import com.qunar.qchat.service.IUserLogin;
-import com.qunar.qchat.utils.JacksonUtils;
 import com.qunar.qchat.utils.JsonResultUtils;
 import com.qunar.qchat.utils.Md5Utils;
 import com.qunar.qchat.utils.RSAEncrypt;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -25,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
-import java.util.Base64;
-import java.util.HashMap;
 
 @Controller
 public class CheckUserLogin {
@@ -56,13 +49,13 @@ public class CheckUserLogin {
         UserCheckTokenModel userCheckTokenModel = new UserCheckTokenModel();
         userCheckTokenModel.setU(userPasswordModel.getUserID());
         userCheckTokenModel.setT(userPasswordModel.getToken());
-        userCheckTokenModel.setH(iUserInfo.getDomain(userPasswordModel.getHost()));
+        userCheckTokenModel.setH(param.getH());
         LOGGER.info("u :[{}] h:[{}] check login finish cost [{}] ms", param.getU(), param.getH(), System.currentTimeMillis() - start);
         return JsonResultUtils.success(userCheckTokenModel);
     }
 
     @ResponseBody
-    @RequestMapping(value = "/corp/auth/checktoken.qunar", method = RequestMethod.POST)
+    @RequestMapping(value = "/corp/newapi/auth/checktoken.qunar", method = RequestMethod.POST)
     public JsonResult<?> checkLogin(@RequestBody UserCheckTokenModel param) {
         LOGGER.info("check user token u :[{}] h:[{}] token:[{}] data is {}", param.getU(), param.getH(), param.getT());
         long start = System.currentTimeMillis();
@@ -80,7 +73,7 @@ public class CheckUserLogin {
     public static void main(String[] args) throws Exception {
         String rsaPublic = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCy2VXDAlCZlj7gPHvC/vwvbpTN/GyW0tmNCqh0UPitdTTGZk3UcLqu9lWMGPViL/5lhboiSogsDxJLHdwo91DDBjTX1HbuyuOhvsvayV7Yc8t+ajFW/8RwlvhGSzVplthoU+md9kGeZ8t73VWWZUEB0iyWx7Y/RjUwTdnOlNXDzQIDAQAB";
         String u = "admin";
-        String p = "123456790";
+        String p = "12345678";
 
         String encode = RSAEncrypt.encrypt(p, rsaPublic);
         String baseEncode = Base64Utils.encodeToString(encode.getBytes());

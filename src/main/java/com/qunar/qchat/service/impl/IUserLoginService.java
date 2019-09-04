@@ -6,11 +6,9 @@ import com.qunar.qchat.dao.IUserInfo;
 import com.qunar.qchat.dao.model.UserPasswordModel;
 import com.qunar.qchat.dao.model.UserPasswordRO;
 import com.qunar.qchat.service.IUserLogin;
-import com.qunar.qchat.utils.JacksonUtils;
 import com.qunar.qchat.utils.Md5Utils;
 import com.qunar.qchat.utils.RSAEncrypt;
 import com.qunar.qchat.utils.RedisUtil;
-import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +16,9 @@ import org.springframework.stereotype.Service;
 import sun.misc.BASE64Decoder;
 
 import javax.annotation.Resource;
-import java.util.Base64;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 public class IUserLoginService implements IUserLogin {
@@ -56,7 +51,7 @@ public class IUserLoginService implements IUserLogin {
             return userPasswordModel;
         }
         if (checkPassword(decodeUserLogin, passwordDB.getPasswd(), passwordDB.getPasswdSalt())) {
-            passwordDB.setToken(buildLoginToken(userID, userInput.getH()));
+            passwordDB.setToken(buildLoginToken(passwordDB.getUserID(), userInput.getH()));
             userPasswordModel = passwordDB;
             userPasswordModel.setErrCode(0);
             LOGGER.info("login success user [{}],h:[{}]", userInput.getU(), userInput.getH());
@@ -83,6 +78,11 @@ public class IUserLoginService implements IUserLogin {
         stringBuilder.append("@").append(host);
         Integer hostId = iUserInfo.getHostInfo(host);
         Integer hireFlag = iUserInfo.getUserHireFlag(userId, hostId);
+        if(hireFlag==null){
+            LOGGER.info("user {} host {} no user in db ", userId, host);
+            return false;
+
+        }
         if (!hireFlag.equals(1)) {
             LOGGER.info("user {} host {} have left ", userId, host);
             return false;
