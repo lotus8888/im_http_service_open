@@ -118,37 +118,6 @@ public class QDomainController {
             rowData.put("ul", userStatus);
             resultData.add(rowData);
 
-            /*if(Objects.isNull(request) || StringUtils.isBlank(request.getDomain())) {
-                return JsonResultUtils.fail(1, "参数错误");
-            }
-
-            //QTalk验证，QChat不验证
-            if (QChatConstant.ENVIRONMENT_QTALK.equals(Config.CURRENT_ENV)) {
-                HostInfoModel hostInfo = hostInfoDao.selectHostInfoByHostName(request.getDomain());
-                if (Objects.isNull(hostInfo)) {
-                    return JsonResultUtils.fail(1, "domain [" + request.getDomain() + "] 不存在");
-                }
-            }
-
-            List<Map<String, Object>> resultData = new ArrayList<>();
-            Map<String, Object> rowData = new HashMap<>();
-            rowData.put("domain", request.getDomain());
-
-            List<String> users = request.getUsers();
-            List<Map<String, String>> userStatus = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(users)) {
-                    users.stream().forEach(user -> {
-                        String status = CommonRedisUtil.getUserStatus(user, request.getDomain());
-                        Map<String, String> currentUserStatus = new HashMap<>();
-                        currentUserStatus.put("u", user);
-                        currentUserStatus.put("o", status);
-                        userStatus.add(currentUserStatus);
-                    });
-            }
-
-            rowData.put("ul", userStatus);
-            resultData.add(rowData);*/
-
             return JsonResultUtils.success(rowData);
         }catch (Exception ex) {
             LOGGER.error("catch error", ex);
