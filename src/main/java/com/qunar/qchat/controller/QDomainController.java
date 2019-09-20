@@ -1,6 +1,7 @@
 package com.qunar.qchat.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.qunar.qchat.constants.Config;
 import com.qunar.qchat.constants.QChatConstant;
 import com.qunar.qchat.dao.IFloginUserDao;
@@ -18,8 +19,10 @@ import com.qunar.qchat.model.result.SearchVCardResult;
 import com.qunar.qchat.service.IDomainService;
 import com.qunar.qchat.utils.CommonRedisUtil;
 import com.qunar.qchat.utils.HttpClientUtils;
+import com.qunar.qchat.utils.JacksonUtils;
 import com.qunar.qchat.utils.JsonResultUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -141,6 +144,9 @@ public class QDomainController {
             if (!checkGetVcardInfoParameters(requests)) {
                 return JsonResultUtils.fail(1, QChatConstant.PARAMETER_ERROR);
             }
+            if ("qchat".equalsIgnoreCase(Config.VCARD_ENV)) {
+                return getChatVcardInfo(requests);
+            }
 
             List<Map<String, Object>> finalResult = new ArrayList<>();
             for (GetVCardInfoRequest request : requests) {
@@ -213,6 +219,42 @@ public class QDomainController {
         return true;
     }
 
+    private JsonResult getChatVcardInfo(List<GetVCardInfoRequest> requests) {
+        StringBuilder param = new StringBuilder();
+        requests.stream().forEach(vCardInfo ->
+                vCardInfo.getUsers().stream().forEach(userInfo -> param.append(userInfo.getUser()).append(","))
+        );
+        String vcardUrl = Config.QCHAT_VCARD_URL + param.toString();
+        LOGGER.info("getChatVcardInfo vcardUrl:{}", vcardUrl);
+        String httpResult = HttpClientUtils.get(vcardUrl);
+        LOGGER.info("getChatVcardInfo result:{}", httpResult);
+        Map<String, Object> map = new HashMap<>();
+        map.put("domain", requests.get(0).getDomain());
+        List<GetVCardInfoResult> users = new ArrayList<>();
+        if(StringUtils.isNotEmpty(httpResult)) {
+            JsonResult jsonResult = JacksonUtils.string2Obj(httpResult, JsonResult.class);
+            if (jsonResult != null && jsonResult.getData() != null) {
+                List<Map<String, Object>> list = JacksonUtils.string2Obj(JacksonUtils.obj2String(jsonResult.getData()), new TypeReference<List<Map<String, Object>>>(){});
+                if(CollectionUtils.isNotEmpty(list)) {
+                    list.stream().forEach(resultMap -> {
+                        GetVCardInfoResult resultBean = new GetVCardInfoResult();
+                        resultBean.setUsername(MapUtils.getString(resultMap, "username"));
+                        String webname = MapUtils.getString(resultMap, "webname");
+                        String nickname = MapUtils.getString(resultMap, "nickname");
+                        String imageurl = MapUtils.getString(resultMap, "imageurl");
+                        resultBean.setWebname(StringUtils.isEmpty(webname) ? nickname : webname);
+                        resultBean.setNickname(nickname);
+                        resultBean.setImageurl(imageurl);
+                        users.add(resultBean);
+                    });
+                }
+            }
+        }
+        map.put("users", users);
+        List<Map<String, Object>> finalResult = new ArrayList<>();
+        finalResult.add(map);
+        return JsonResultUtils.success(finalResult);
+    }
 
     @RequestMapping(value = "/search_vcard.qunar", method = RequestMethod.GET)
     public JsonResult<?> searchVCard(String p, String v, String keyword) {

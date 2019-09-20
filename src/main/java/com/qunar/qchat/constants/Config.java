@@ -26,6 +26,8 @@ public class Config {
     public static final String CREATE_QRCODE_URL = getProperty("create_qrcode_url");
 
     public static final String CURRENT_ENV = getProperty("current_env");
+    public static final String VCARD_ENV = getProperty("vcard_env");
+    public static final String QCHAT_VCARD_URL = getProperty("qchat_vcard_url");
 
     public static final String GET_VCARD_INFO_URL = getProperty("get_vcard_info_url");
 
