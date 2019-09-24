@@ -117,6 +117,9 @@
             and muc_name in
             <foreach collection="ids" separator="," item="id" open="(" close=")">#{id}</foreach>
         </if>
+        <if test = "ids == null or ids.size() == 0">
+            and 1=0
+        </if>
         and update_time > #{updateTime}
 
     </select>
