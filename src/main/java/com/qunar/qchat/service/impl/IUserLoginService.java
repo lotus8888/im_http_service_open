@@ -6,9 +6,18 @@ import com.qunar.qchat.dao.IUserInfo;
 import com.qunar.qchat.dao.model.UserPasswordModel;
 import com.qunar.qchat.dao.model.UserPasswordRO;
 import com.qunar.qchat.service.IUserLogin;
+import com.qunar.qchat.utils.JacksonUtils;
 import com.qunar.qchat.utils.Md5Utils;
 import com.qunar.qchat.utils.RSAEncrypt;
 import com.qunar.qchat.utils.RedisUtil;
+import org.ldaptive.Credential;
+import org.ldaptive.LdapAttribute;
+import org.ldaptive.LdapEntry;
+import org.ldaptive.LdapException;
+import org.ldaptive.auth.AuthenticationRequest;
+import org.ldaptive.auth.AuthenticationResponse;
+import org.ldaptive.auth.Authenticator;
+import org.ldaptive.control.ResponseControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +25,7 @@ import org.springframework.stereotype.Service;
 import sun.misc.BASE64Decoder;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -31,11 +41,18 @@ public class IUserLoginService implements IUserLogin {
     private IUserInfo iUserInfo;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private Authenticator authenticator;
 
     private static String RSA_PRIVATE = Config.getProperty("rsa_private_key");
 
     @Override
     public UserPasswordModel checkUserLogin(UserPasswordRO userInput) {
+
+        if ("ldap".equalsIgnoreCase(Config.getProperty("user.check.type", "local"))) {
+            return checkUserLoginByLdap(userInput);
+        }
+
         UserPasswordModel userPasswordModel = new UserPasswordModel();
         String decodeUserLogin = decodePassword(userInput.getP()); //解密密码
         if (Strings.isNullOrEmpty(decodeUserLogin)) {
@@ -59,6 +76,39 @@ public class IUserLoginService implements IUserLogin {
         }
         LOGGER.info("user [{}],h:[{}] auth fail due to password error", userInput.getU(), userInput.getH());
         userPasswordModel.setErrCode(3);
+        return userPasswordModel;
+    }
+
+    private UserPasswordModel checkUserLoginByLdap(UserPasswordRO userInput) {
+        LOGGER.info("checkUserLoginByLdap param:{}", JacksonUtils.obj2String(userInput));
+        UserPasswordModel userPasswordModel = new UserPasswordModel();
+        String username = userInput.getU();
+        String password = userInput.getP();
+        try {
+            AuthenticationResponse response = authenticator.authenticate(new AuthenticationRequest(username, new Credential(password), "uid", "mail"));
+            if (response.getResult()) { // authentication succeeded
+                LdapEntry entry = response.getLdapEntry(); // read uid and mail attributes
+                // 获取uid
+                String uid = entry.getAttribute("uid").getStringValue();
+                System.out.println("uid: " + uid);
+                // 获取邮箱
+                LdapAttribute mailAttr = entry.getAttribute("mail");
+                if (mailAttr != null) {
+                    Collection<String> mails = mailAttr.getStringValues();
+                    System.out.println("mail: " + mails.toArray(new String[mails.size()]));
+                }
+                userPasswordModel.setErrCode(0);
+                userPasswordModel.setToken(buildLoginToken(username, userInput.getH()));
+            } else {
+                String msg = response.getMessage(); // read the failure message
+                ResponseControl[] ctls = response.getControls(); // read any response controls
+                userPasswordModel.setErrCode(3);
+                LOGGER.warn("checkUserLoginByLdap auth user:{} fail msg:{}", username, msg);
+            }
+        } catch (LdapException e) {
+            LOGGER.error("checkUserLoginByLdap user:{} error", username, e);
+            userPasswordModel.setErrCode(5);
+        }
         return userPasswordModel;
     }
 
