@@ -9,12 +9,10 @@ import com.qunar.qchat.dao.IUserInfo;
 import com.qunar.qchat.dao.model.HostInfoModel;
 import com.qunar.qchat.dao.model.UserInfoQtalk;
 import com.qunar.qchat.model.GetTelResult;
-import com.qunar.qchat.model.JsonResult;
 import com.qunar.qchat.model.request.GetLeaderRequest;
 import com.qunar.qchat.model.request.GetMobileRequest;
 import com.qunar.qchat.utils.JacksonUtils;
-import com.qunar.qchat.utils.JsonResultUtils;
-import javafx.util.Pair;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

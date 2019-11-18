@@ -20,7 +20,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static javafx.scene.input.KeyCode.X;
 
 /**
  * QtalkUpdateStructService
