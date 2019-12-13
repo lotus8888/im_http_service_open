@@ -14,6 +14,7 @@ public class MutedMemberRequest implements IRequest {
 
     private String muc_name;
     private String member_name;
+    private Integer muted_type;
 
     @Override
     public boolean isRequestValid() {
@@ -24,6 +25,11 @@ public class MutedMemberRequest implements IRequest {
         if(StringUtils.isBlank(this.member_name)) {
             return false;
         }
+
+        if (this.muted_type == null || (this.muted_type != 0 && this.muted_type != 1)) {
+            return false;
+        }
+
         return true;
     }
 }

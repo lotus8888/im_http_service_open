@@ -14,6 +14,7 @@
  - [12.快捷回复消息接口](#12.快捷回复消息接口)
  - [13.获取系统时间](#13.获取系统时间)
  - [14.ckey验证接口](#14.ckey验证接口)
+ - [15.群禁言接口](#15.ckey验证接口)
 ## 1.获取用户勋章列表
 ```
 接口：/newapi/user/get_user_decoration.qunar
@@ -405,8 +406,8 @@ type=consult
     "errmsg": "",
     "data": ""
  }
- ```
- 
+```
+
 ### 14.增量获取群名片
 ```
 接口：/newapi/muc/get_user_increment_muc_vcard.qunar
@@ -435,6 +436,32 @@ type=consult
     ]
 }
 ```
+
+### 15.群禁言接口
+
+```
+接口：/newapi/muc/muted_members.qunar
+请求方式：POST
+参数：
+{
+    "muc_name":"xxx",
+    "member_name":"xxx",
+    "muted_type":1
+}
+
+参数说明：muted_type  （int类型   1：禁言、2：非禁言）
+
+返回值：
+{
+    "ret": true,
+    "errcode": 0,
+    "errmsg": "",
+    "data": [
+    ]
+}
+```
+
+
 
 
 

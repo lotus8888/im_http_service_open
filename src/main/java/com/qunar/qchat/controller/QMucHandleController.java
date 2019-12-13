@@ -70,7 +70,7 @@ public class QMucHandleController {
             String domain = cookie.get("d").toString();
 
             // 设置为禁言状态
-            iGetMsgDao.updateMucRoomUsersByUser(BasicConstant.MUC_MUTED_YES, request.getMuc_name(), request.getMember_name(), domain);
+            iGetMsgDao.updateMucRoomUsersByUser(request.getMuted_type(), request.getMuc_name(), request.getMember_name(), domain);
 
             Map<String, Object> resultMap = new HashMap<>();
             resultMap.put("ret", true);
