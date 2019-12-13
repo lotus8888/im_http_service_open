@@ -134,4 +134,18 @@ public interface IGetMsgDao {
             @Param("user") String user,
             @Param("time") Double time,
             @Param("id") long id);
+
+    /**
+     * 禁言更新群用户信息
+     * @param muted
+     * @param mucName
+     * @param user
+     * @param domain
+     * @return
+     */
+    public Integer updateMucRoomUsersByUser(
+            @Param("muted") Integer muted,
+            @Param("mucName") String mucName,
+            @Param("user") String user,
+            @Param("domain") String domain);
 }

@@ -24,4 +24,12 @@ public class BasicConstant {
     public static final String USERTYPE_SPECILA = "S";
     public static final String USERTYPE_ROBOT = "R";
 
+    /**
+     * 禁言状态
+     */
+    // 禁言
+    public static final Integer MUC_MUTED_YES = 1;
+    // 非禁言
+    public static final Integer MUC_MUTED_NO = 0;
+
 }

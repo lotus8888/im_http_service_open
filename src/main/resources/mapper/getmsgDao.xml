@@ -245,4 +245,9 @@
         </if>
         order by create_time desc limit 10000;
     </select>
+
+    <!-- 更新群用户信息 禁言 -->
+    <update id="updateMucRoomUsersByUser">
+        update muc_room_users set is_muted = #{muted} where muc_name = #{mucName} and username = #{user} and domain = #{domain}
+    </update>
 </mapper>
