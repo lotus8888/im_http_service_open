@@ -9,10 +9,16 @@ import com.qunar.qchat.dao.IHostUserDao;
 import com.qunar.qchat.dao.model.HostInfoModel;
 import com.qunar.qchat.dao.model.HostUserModel;
 import com.qunar.qchat.dao.model.UserFriendsModel;
+import com.qunar.qchat.dao.model.UserFriendsRequestModel;
 import com.qunar.qchat.model.JsonResult;
 import com.qunar.qchat.model.request.IncreUsersRequest;
+import com.qunar.qchat.model.request.UserFriendStepOneRequest;
+import com.qunar.qchat.model.request.UserFriendStepTwoRequest;
 import com.qunar.qchat.model.request.UserSearchRequest;
+import com.qunar.qchat.service.IUserFriendsService;
+import com.qunar.qchat.utils.CookieUtils;
 import com.qunar.qchat.utils.JsonResultUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -38,6 +45,8 @@ public class QHostUserController {
     private IHostUserDao hostUserDao;
     @Autowired
     private IHostInfoDao hostInfoDao;
+    @Autowired
+    private IUserFriendsService userFriendsService;
 
     /**
      * 精确搜索用户信息
@@ -45,9 +54,19 @@ public class QHostUserController {
      * @return
      */
     @RequestMapping(value = "/find_user.qunar", method = RequestMethod.POST)
-    public JsonResult<?> findUser(@RequestBody UserSearchRequest request) {
+    public JsonResult<?> findUser(HttpServletRequest httpRequest, @RequestBody UserSearchRequest request) {
         LOGGER.info("------ 精确搜索用户信息请求参数：" + JSONObject.toJSONString(request));
         try {
+            if(StringUtils.isBlank(request.getUser())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setUser(cookie.get("u").toString());
+            }
+
+            if(StringUtils.isBlank(request.getHost())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setHost(cookie.get("d").toString());
+            }
+
             if(!request.isRequestValid()) {
                 return JsonResultUtils.fail(1, "参数错误");
             }
@@ -79,9 +98,19 @@ public class QHostUserController {
      * @return
      */
     @RequestMapping(value = "/get_friends.qunar", method = RequestMethod.POST)
-    public JsonResult<?> getFriends(@RequestBody UserSearchRequest request) {
+    public JsonResult<?> getFriends(HttpServletRequest httpRequest,@RequestBody UserSearchRequest request) {
         LOGGER.info("------ 获取好友列表请求参数：" + JSONObject.toJSONString(request));
         try {
+            if(StringUtils.isBlank(request.getUser())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setUser(cookie.get("u").toString());
+            }
+
+            if(StringUtils.isBlank(request.getHost())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setHost(cookie.get("d").toString());
+            }
+
             if(!request.isRequestValid()) {
                 return JsonResultUtils.fail(1, "参数错误");
             }
@@ -103,6 +132,133 @@ public class QHostUserController {
             return JsonResultUtils.success(friendList);
         } catch (Exception e) {
             LOGGER.error("----- 获取好友列表接口 catch error: {}", ExceptionUtils.getStackTrace(e));
+            return JsonResultUtils.fail(0, "服务器操作异常");
+        }
+    }
+
+    /**
+     * 获取好友请求列表
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/get_request_friends.qunar", method = RequestMethod.POST)
+    public JsonResult<?> getRequestFriends(HttpServletRequest httpRequest, @RequestBody UserSearchRequest request) {
+        LOGGER.info("------ 获取好友请求列表请求参数：" + JSONObject.toJSONString(request));
+        try {
+            if(StringUtils.isBlank(request.getUser())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setUser(cookie.get("u").toString());
+            }
+
+            if(StringUtils.isBlank(request.getHost())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setHost(cookie.get("d").toString());
+            }
+
+            if(!request.isRequestValid()) {
+                return JsonResultUtils.fail(1, "参数错误");
+            }
+
+            // 查询host信息
+            HostInfoModel hostInfoModel = hostInfoDao.selectHostInfoByHostName(request.getHost());
+            if (Objects.isNull(hostInfoModel)) {
+                return JsonResultUtils.fail(1, "host [" + request.getHost() + "] 不存在");
+            }
+
+            // 获取好友请求列表
+            List<UserFriendsRequestModel> friendList = hostUserDao.selectRequestUserFriendsByUserId(request.getUser(), request.getHost());
+            if (friendList == null) {
+                friendList = new ArrayList<>();
+            }
+
+            LOGGER.info("------ 获取好友请求列表返回结果：" + JSONObject.toJSONString(friendList));
+
+            return JsonResultUtils.success(friendList);
+        } catch (Exception e) {
+            LOGGER.error("----- 获取好友请求列表接口 catch error: {}", ExceptionUtils.getStackTrace(e));
+            return JsonResultUtils.fail(0, "服务器操作异常");
+        }
+    }
+
+    /**
+     * 添加好友（认证）
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/add_friend/auth.qunar", method = RequestMethod.POST)
+    public JsonResult<?> addFriendAuth(HttpServletRequest httpRequest, @RequestBody UserFriendStepOneRequest request) {
+        LOGGER.info("------ 添加好友（认证）接口请求参数：" + JSONObject.toJSONString(request));
+        try {
+            if(StringUtils.isBlank(request.getUser())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setUser(cookie.get("u").toString());
+            }
+
+            if(StringUtils.isBlank(request.getHost())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setHost(cookie.get("d").toString());
+            }
+
+            if(!request.isRequestValid()) {
+                return JsonResultUtils.fail(1, "参数错误");
+            }
+
+            // 查询host信息
+            HostInfoModel hostInfoModel = hostInfoDao.selectHostInfoByHostName(request.getHost());
+            if (Objects.isNull(hostInfoModel)) {
+                return JsonResultUtils.fail(1, "host [" + request.getHost() + "] 不存在");
+            }
+
+            // 新增用户好友请求
+            UserFriendsRequestModel requestModel = new UserFriendsRequestModel(request.getUser(), request.getFriend(), request.getHost(), request.getHost());
+            hostUserDao.insertUserFriendsRequest(requestModel);
+
+            LOGGER.info("------ 添加好友（认证）返回结果：success");
+
+            return JsonResultUtils.success();
+        } catch (Exception e) {
+            LOGGER.error("----- 添加好友（认证）接口 catch error: {}", ExceptionUtils.getStackTrace(e));
+            return JsonResultUtils.fail(0, "服务器操作异常");
+        }
+    }
+
+    /**
+     * 添加好友（确认）
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/add_friend/confirm.qunar", method = RequestMethod.POST)
+    public JsonResult<?> addFriendConfrim(HttpServletRequest httpRequest, @RequestBody UserFriendStepTwoRequest request) {
+        LOGGER.info("------ 添加好友（确认）接口请求参数：" + JSONObject.toJSONString(request));
+        try {
+            if(StringUtils.isBlank(request.getUser())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setUser(cookie.get("u").toString());
+            }
+
+            if(StringUtils.isBlank(request.getHost())) {
+                Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+                request.setHost(cookie.get("d").toString());
+            }
+
+            if(!request.isRequestValid()) {
+                return JsonResultUtils.fail(1, "参数错误");
+            }
+
+            // 查询host信息
+            HostInfoModel hostInfoModel = hostInfoDao.selectHostInfoByHostName(request.getHost());
+            if (Objects.isNull(hostInfoModel)) {
+                return JsonResultUtils.fail(1, "host [" + request.getHost() + "] 不存在");
+            }
+
+            // 新增用户好友
+            userFriendsService.saveUserFriends(request);
+
+            LOGGER.info("------ 添加好友（确认）返回结果：success");
+
+            return JsonResultUtils.success();
+        } catch (Exception e) {
+            LOGGER.error("----- 添加好友（确认）接口 catch error: {}", ExceptionUtils.getStackTrace(e));
             return JsonResultUtils.fail(0, "服务器操作异常");
         }
     }

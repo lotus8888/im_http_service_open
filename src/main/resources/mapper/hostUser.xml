@@ -43,8 +43,19 @@
         <result column="username" property="username"/>
         <result column="friend" property="friend"/>
         <result column="relationship" property="relationship"/>
+        <result column="version" property="version"/>
         <result column="host" property="host"/>
         <result column="userhost" property="userhost"/>
+    </resultMap>
+
+    <resultMap id="UserFriendsRequestModel" type="com.qunar.qchat.dao.model.UserFriendsRequestModel">
+        <result column="username" property="username"/>
+        <result column="friend" property="friend"/>
+        <result column="host" property="host"/>
+        <result column="userhost" property="userhost"/>
+        <result column="status" property="status"/>
+        <result column="create_at" property="createAt"/>
+        <result column="update_at" property="updateAt"/>
     </resultMap>
 
     <resultMap id="HostUserModelForHost" type="com.qunar.qchat.dao.model.HostUserModel">
@@ -321,4 +332,58 @@
     <select id="selectUserFriendsByUserId" resultMap="UserFriendsModel">
         select <include refid="column_version"/> from user_friends where username = #{username} and host = #{host}
     </select>
+
+    <select id="selectRequestUserFriendsByUserId" resultMap="UserFriendsRequestModel">
+        select <include refid="column_version"/> from user_friends_request where username = #{username} and host = #{host} order by create_at desc;
+    </select>
+
+    <insert id="insertUserFriendsRequest" parameterType="com.qunar.qchat.dao.model.UserFriendsRequestModel">
+        insert into user_friends_request
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="username != null">username,</if>
+            <if test="friend != null">friend,</if>
+            <if test="host != null">host,</if>
+            <if test="userhost != null">userhost,</if>
+            <if test="status != null">status,</if>
+            <if test="createAt != null">create_at,</if>
+            <if test="updateAt != null">update_at,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="username != null">#{username},</if>
+            <if test="friend != null">#{friend},</if>
+            <if test="host != null">#{host},</if>
+            <if test="userhost != null">#{userhost},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createAt != null">#{createAt},</if>
+            <if test="updateAt != null">#{updateAt},</if>
+        </trim>
+    </insert>
+
+    <update id="updateUserFriendsRequest"
+            parameterType="com.qunar.qchat.dao.model.UserFriendsRequestModel">
+        update user_friends_request
+        SET status=#{UserFriendsRequestModel.status},
+        update_at = #{UserFriendsRequestModel.updateAt}
+        WHERE username = #{UserFriendsRequestModel.username} and host = #{UserFriendsRequestModel.host} and friend = #{UserFriendsRequestModel.friend};
+    </update>
+
+    <insert id="insertUserFriends" parameterType="com.qunar.qchat.dao.model.UserFriendsModel">
+        insert into user_friends
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="username != null">username,</if>
+            <if test="friend != null">friend,</if>
+            <if test="relationship != null">relationship,</if>
+            <if test="version != null">version,</if>
+            <if test="host != null">host,</if>
+            <if test="userhost != null">userhost,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="username != null">#{username},</if>
+            <if test="friend != null">#{friend},</if>
+            <if test="relationship != null">#{relationship},</if>
+            <if test="version != null">#{version},</if>
+            <if test="host != null">#{host},</if>
+            <if test="userhost != null">#{userhost},</if>
+        </trim>
+    </insert>
 </mapper>

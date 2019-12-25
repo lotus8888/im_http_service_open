@@ -2,6 +2,7 @@ package com.qunar.qchat.dao;
 
 import com.qunar.qchat.dao.model.HostUserModel;
 import com.qunar.qchat.dao.model.UserFriendsModel;
+import com.qunar.qchat.dao.model.UserFriendsRequestModel;
 import com.qunar.qchat.dao.model.UserInfoQtalk;
 import org.apache.ibatis.annotations.Param;
 
@@ -56,4 +57,12 @@ public interface IHostUserDao {
     Integer deleteFireUserByUserId(@Param("userId") String userId, @Param("hostId") Integer hostId, @Param("host") String host);
 
     List<UserFriendsModel> selectUserFriendsByUserId(@Param("userId") String userId, @Param("host") String host);
+
+    List<UserFriendsRequestModel> selectRequestUserFriendsByUserId(@Param("userId") String userId, @Param("host") String host);
+
+    void insertUserFriendsRequest(@Param("UserFriendsRequestModel") UserFriendsRequestModel userFriendsRequestModel);
+
+    void insertUserFriends(@Param("UserFriendsModel") UserFriendsModel userFriendsModel);
+
+    void updateUserFriendsRequest(@Param("UserFriendsRequestModel") UserFriendsRequestModel userFriendsRequestModel);
 }
