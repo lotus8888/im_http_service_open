@@ -1,5 +1,6 @@
 package com.qunar.qchat.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qunar.qchat.constants.Config;
 import com.qunar.qchat.constants.QChatConstant;
 import com.qunar.qchat.constants.TableConstants;
@@ -7,8 +8,10 @@ import com.qunar.qchat.dao.IHostInfoDao;
 import com.qunar.qchat.dao.IHostUserDao;
 import com.qunar.qchat.dao.model.HostInfoModel;
 import com.qunar.qchat.dao.model.HostUserModel;
+import com.qunar.qchat.dao.model.UserFriendsModel;
 import com.qunar.qchat.model.JsonResult;
 import com.qunar.qchat.model.request.IncreUsersRequest;
+import com.qunar.qchat.model.request.UserSearchRequest;
 import com.qunar.qchat.utils.JsonResultUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -35,6 +38,74 @@ public class QHostUserController {
     private IHostUserDao hostUserDao;
     @Autowired
     private IHostInfoDao hostInfoDao;
+
+    /**
+     * 精确搜索用户信息
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/find_user.qunar", method = RequestMethod.POST)
+    public JsonResult<?> findUser(@RequestBody UserSearchRequest request) {
+        LOGGER.info("------ 精确搜索用户信息请求参数：" + JSONObject.toJSONString(request));
+        try {
+            if(!request.isRequestValid()) {
+                return JsonResultUtils.fail(1, "参数错误");
+            }
+
+            // 查询host信息
+            HostInfoModel hostInfoModel = hostInfoDao.selectHostInfoByHostName(request.getHost());
+            if (Objects.isNull(hostInfoModel)) {
+                return JsonResultUtils.fail(1, "host [" + request.getHost() + "] 不存在");
+            }
+
+            // 获取用户信息
+            HostUserModel hostUserModel = hostUserDao.selectUserInfoByUserId(request.getUser(), hostInfoModel.getId());
+            if (Objects.isNull(hostUserModel)) {
+                return JsonResultUtils.fail(1, "user [" + request.getUser() + "] 不存在");
+            }
+
+            LOGGER.info("------ 精确搜索用户信息返回结果：" + JSONObject.toJSONString(hostUserModel));
+
+            return JsonResultUtils.success(hostUserModel);
+        } catch (Exception e) {
+            LOGGER.error("----- 精确搜索用户信息接口 catch error: {}", ExceptionUtils.getStackTrace(e));
+            return JsonResultUtils.fail(0, "服务器操作异常");
+        }
+    }
+
+    /**
+     * 获取好友列表
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/get_friends.qunar", method = RequestMethod.POST)
+    public JsonResult<?> getFriends(@RequestBody UserSearchRequest request) {
+        LOGGER.info("------ 获取好友列表请求参数：" + JSONObject.toJSONString(request));
+        try {
+            if(!request.isRequestValid()) {
+                return JsonResultUtils.fail(1, "参数错误");
+            }
+
+            // 查询host信息
+            HostInfoModel hostInfoModel = hostInfoDao.selectHostInfoByHostName(request.getHost());
+            if (Objects.isNull(hostInfoModel)) {
+                return JsonResultUtils.fail(1, "host [" + request.getHost() + "] 不存在");
+            }
+
+            // 获取好友列表
+            List<UserFriendsModel> friendList = hostUserDao.selectUserFriendsByUserId(request.getUser(), request.getHost());
+            if (friendList == null) {
+                friendList = new ArrayList<>();
+            }
+
+            LOGGER.info("------ 获取好友列表返回结果：" + JSONObject.toJSONString(friendList));
+
+            return JsonResultUtils.success(friendList);
+        } catch (Exception e) {
+            LOGGER.error("----- 获取好友列表接口 catch error: {}", ExceptionUtils.getStackTrace(e));
+            return JsonResultUtils.fail(0, "服务器操作异常");
+        }
+    }
 
     @RequestMapping(value = "/get_increment_users.qunar", method = RequestMethod.POST)
     public JsonResult<?> getIncrementUsers(@RequestBody IncreUsersRequest request) {

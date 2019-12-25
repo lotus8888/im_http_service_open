@@ -39,6 +39,14 @@
         <result column="hire_flag" property="hireFlag"/>
     </resultMap>
 
+    <resultMap id="UserFriendsModel" type="com.qunar.qchat.dao.model.UserFriendsModel">
+        <result column="username" property="username"/>
+        <result column="friend" property="friend"/>
+        <result column="relationship" property="relationship"/>
+        <result column="host" property="host"/>
+        <result column="userhost" property="userhost"/>
+    </resultMap>
+
     <resultMap id="HostUserModelForHost" type="com.qunar.qchat.dao.model.HostUserModel">
         <id column="id" property="id"/>
         <result column="host_id" property="hostId"/>
@@ -305,4 +313,12 @@
         delete from host_users where user_id = #{userId} and host_id = #{hostId} and hire_flag = 0;
         delete from vcard_version where username = #{userId} and host = #{host};
     </delete>
+
+    <select id="selectUserInfoByUserId" resultMap="HostUserForVersion">
+        select <include refid="column_version"/> from host_users where user_id = #{userId} and host_id = #{hostId}
+    </select>
+
+    <select id="selectUserFriendsByUserId" resultMap="UserFriendsModel">
+        select <include refid="column_version"/> from user_friends where username = #{username} and host = #{host}
+    </select>
 </mapper>
