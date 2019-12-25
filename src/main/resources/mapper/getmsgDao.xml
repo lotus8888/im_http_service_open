@@ -250,4 +250,15 @@
     <update id="updateMucRoomUsersByUser">
         update muc_room_users set is_muted = #{muted} where muc_name = #{mucName} and username = #{user} and domain = #{domain}
     </update>
+
+    <!-- 获取群用户状态 -->
+    <select id="get_muc_users_status" resultType="java.util.Map">
+      select username, is_muted from muc_room_users where domain = #{domain} and muc_name = #{mucName}
+        <if test="names != null and names.size() > 0">
+          and username in
+            <foreach collection="names" item="name" open="(" close=")" separator=",">
+                #{name}
+            </foreach>
+        </if>
+    </select>
 </mapper>

@@ -5,6 +5,7 @@ import com.qunar.qchat.constants.BasicConstant;
 import com.qunar.qchat.dao.IGetMsgDao;
 import com.qunar.qchat.dao.IMucInfoDao;
 import com.qunar.qchat.model.JsonResult;
+import com.qunar.qchat.model.request.MemberMuteStatusRequest;
 import com.qunar.qchat.model.request.MutedMemberRequest;
 import com.qunar.qchat.model.request.UpdateMucNickRequest;
 import com.qunar.qchat.utils.CookieUtils;
@@ -76,6 +77,56 @@ public class QMucHandleController {
             resultMap.put("ret", true);
             resultMap.put("errcode", 0);
             resultMap.put("errmsg", "");
+
+            return resultMap;
+
+        } catch (Exception e) {
+            LOGGER.error("----- 群成员禁言接口 catch error: {}", ExceptionUtils.getStackTrace(e));
+            return JsonResultUtils.fail(0, "服务器操作异常");
+        }
+
+    }
+
+    /**
+     * 获取群成员禁言状态
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/member_muted_status.qunar", method = RequestMethod.POST)
+    public Object getMembersMuteStatus(HttpServletRequest httpRequest, @RequestBody MemberMuteStatusRequest request) {
+        LOGGER.info("------ 获取群成员禁言状态请求参数：" + JSONObject.toJSONString(request));
+        try {
+            if(!request.isRequestValid()) {
+                return JsonResultUtils.fail(1, "参数错误");
+            }
+
+            // 群名称
+            String tempMucName = "";
+            if (request.getMuc_name().indexOf("@") == -1) {
+                tempMucName = request.getMuc_name();
+            } else {
+                tempMucName = request.getMuc_name().substring(0, request.getMuc_name().indexOf("@"));
+            }
+
+            // 校验群是否存在
+            int exitCount = iMucInfoDao.checkMucExist(tempMucName);
+            if(exitCount == 0) {
+                LOGGER.error("------ 获取群成员禁言状态接口，群：{} 不存在", request.getMuc_name());
+                return JsonResultUtils.fail(1, "群" + request.getMuc_name() + "不存在");
+            }
+
+            // 获取 cookie 信息
+            Map<String, Object> cookie = CookieUtils.getUserbyCookie(httpRequest);
+            String domain = cookie.get("d").toString();
+
+            // 设置为禁言状态
+            List<Map<String, Object>> list = iGetMsgDao.getMucUsersStatus(domain, request.getMuc_name(), request.getMember_list());
+
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("ret", true);
+            resultMap.put("errcode", 0);
+            resultMap.put("errmsg", "");
+            resultMap.put("data", list);
 
             return resultMap;
 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -148,4 +149,14 @@ public interface IGetMsgDao {
             @Param("mucName") String mucName,
             @Param("user") String user,
             @Param("domain") String domain);
+
+    /**
+     * 获取群用户禁言状态
+     * @param domain
+     * @param mucName
+     * @param names
+     * @return
+     */
+    public List<Map<String, Object>> getMucUsersStatus(@Param("domain") String domain,
+           @Param("mucName") String mucName, @Param("names") List<String> names);
 }
