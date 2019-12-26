@@ -252,7 +252,7 @@
     </update>
 
     <!-- 获取群用户状态 -->
-    <select id="get_muc_users_status" resultType="java.util.Map">
+    <select id="getMucUsersStatus" resultType="java.util.Map">
       select username, is_muted from muc_room_users where domain = #{domain} and muc_name = #{mucName}
         <if test="names != null and names.size() > 0">
           and username in

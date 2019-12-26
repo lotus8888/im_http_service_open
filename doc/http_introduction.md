@@ -14,7 +14,13 @@
  - [12.快捷回复消息接口](#12.快捷回复消息接口)
  - [13.获取系统时间](#13.获取系统时间)
  - [14.ckey验证接口](#14.ckey验证接口)
- - [15.群禁言接口](#15.ckey验证接口)
+ - [15.群禁言接口](#15.群禁言接口)
+ - [16.获取群成员禁言状态接口](#16.获取群成员禁言状态接口)
+ - [17.搜索用户信息接口](#17.搜索用户信息接口)
+ - [18.获取好友列表接口](#18.获取好友列表接口)
+ - [19.获取好友请求列表接口](#19.获取好友请求列表接口)
+ - [20.添加好友（认证）接口](#20.添加好友（认证）接口)
+ - [21.添加好友（确认）接口](#21.添加好友（确认）接口)
 ## 1.获取用户勋章列表
 ```
 接口：/newapi/user/get_user_decoration.qunar
@@ -461,7 +467,171 @@ type=consult
 }
 ```
 
+### 16.获取群成员禁言状态接口
+
+```
+接口：/newapi/muc/member_muted_status.qunar
+请求方式：POST
+参数：
+{
+    "muc_name":"muc1",
+    "member_list":["test1", "test2"]
+}
+
+参数说明：
+member_list: List<String>
+
+返回值：
+{
+    "ret": true,
+    "errcode": 0,
+    "errmsg": "",
+    "data": [{
+    	"username":"test1",
+    	"is_muted":1
+    },
+    {
+    	"username":"test2",
+    	"is_muted":2
+    }
+    ]
+}
+
+参数说明：
+is_muted （int类型   1：禁言、2：非禁言）
+```
+
+### 17.搜索用户信息接口
+
+```
+接口：/newapi/user/find_user.qunar
+请求方式：POST
+参数：
+{
+    "user":"test1",
+    "host":"qtalk"
+}
 
 
+返回值：
+{
+    "ret": true,
+    "errcode": 0,
+    "errmsg": "",
+    "data": {
+    	"userId":"test1",
+    	"userName":"test1",
+    	"department":"",
+    	"pinyin":"",
+    	"version":1,
+    	"userType":1,
+    	"hireFlag":1
+    }
+}
+```
 
+### 18.获取好友列表接口
+
+```
+接口：/newapi/user/get_friends.qunar
+请求方式：POST
+参数：
+{
+    "user":"test1",
+    "host":"qtalk"
+}
+
+
+返回值：
+{
+    "ret": true,
+    "errcode": 0,
+    "errmsg": "",
+    "data": [{
+    	"userName":"test1",
+    	"friend":"test2",
+    	"relationship":1,
+    	"version":1,
+    	"host":"qtalk",
+    	"userhost":"qtalk"
+    }]
+}
+```
+
+### 19.获取好友请求列表接口
+
+```
+接口：/newapi/user/get_request_friends.qunar
+请求方式：POST
+参数：
+{
+    "user":"test1",
+    "host":"qtalk"
+}
+
+
+返回值：
+{
+    "ret": true,
+    "errcode": 0,
+    "errmsg": "",
+    "data": [{
+    	"userName":"test1",
+    	"friend":"test2",	
+    	"host":"qtalk",
+    	"userhost":"qtalk"
+    	"status":1,
+    	"createAt":2019-12-25 00:00:00
+    	"updateAt":2019-12-25 00:00:00
+    }]
+}
+
+参数说明：
+status 状态（0：待添加，1：已添加，2：已拒绝）
+```
+
+### 20.添加好友（认证）接口
+
+```
+接口：/newapi/user/add_friend/auth.qunar
+请求方式：POST
+参数：
+{
+    "user":"test1",
+    "host":"qtalk",
+    "friend":"test2"
+}
+
+
+返回值：
+{
+    "ret": true,
+    "errcode": 0,
+    "errmsg": "",
+}
+```
+
+### 21.添加好友（确认）接口
+
+```
+接口：/newapi/user/add_friend/confirm.qunar
+请求方式：POST
+参数：
+{
+    "user":"test1",
+    "host":"qtalk",
+    "friend":"test2",
+    "status":1
+}
+
+参数说明：
+status 状态（0：待添加，1：已添加，2：已拒绝）
+
+返回值：
+{
+    "ret": true,
+    "errcode": 0,
+    "errmsg": "",
+}
+```
 
