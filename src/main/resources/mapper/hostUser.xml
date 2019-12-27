@@ -326,36 +326,36 @@
     </delete>
 
     <select id="selectUserInfoByUserId" resultMap="HostUserForVersion">
-        select <include refid="column_version"/> from host_users where user_id = #{userId} and host_id = #{hostId}
+        select <include refid="column_version"/> from host_users where user_id = #{userId} and host_id = #{hostId};
     </select>
 
     <select id="selectUserFriendsByUserId" resultMap="UserFriendsModel">
-        select <include refid="column_version"/> from user_friends where username = #{username} and host = #{host}
+        select * from user_friends where username = #{userId} and host = #{host};
     </select>
 
     <select id="selectRequestUserFriendsByUserId" resultMap="UserFriendsRequestModel">
-        select <include refid="column_version"/> from user_friends_request where username = #{username} and host = #{host} order by create_at desc;
+        select * from user_friends_request where username = #{userId} and host = #{host} order by create_at desc;
     </select>
 
     <insert id="insertUserFriendsRequest" parameterType="com.qunar.qchat.dao.model.UserFriendsRequestModel">
         insert into user_friends_request
         <trim prefix="(" suffix=")" suffixOverrides="," >
-            <if test="username != null">username,</if>
-            <if test="friend != null">friend,</if>
-            <if test="host != null">host,</if>
-            <if test="userhost != null">userhost,</if>
-            <if test="status != null">status,</if>
-            <if test="createAt != null">create_at,</if>
-            <if test="updateAt != null">update_at,</if>
+            <if test="UserFriendsRequestModel.username != null">username,</if>
+            <if test="UserFriendsRequestModel.friend != null">friend,</if>
+            <if test="UserFriendsRequestModel.host != null">host,</if>
+            <if test="UserFriendsRequestModel.userhost != null">userhost,</if>
+            <if test="UserFriendsRequestModel.status != null">status,</if>
+            <if test="UserFriendsRequestModel.createAt != null">create_at,</if>
+            <if test="UserFriendsRequestModel.updateAt != null">update_at,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides="," >
-            <if test="username != null">#{username},</if>
-            <if test="friend != null">#{friend},</if>
-            <if test="host != null">#{host},</if>
-            <if test="userhost != null">#{userhost},</if>
-            <if test="status != null">#{status},</if>
-            <if test="createAt != null">#{createAt},</if>
-            <if test="updateAt != null">#{updateAt},</if>
+            <if test="UserFriendsRequestModel.username != null">#{UserFriendsRequestModel.username},</if>
+            <if test="UserFriendsRequestModel.friend != null">#{UserFriendsRequestModel.friend},</if>
+            <if test="UserFriendsRequestModel.host != null">#{UserFriendsRequestModel.host},</if>
+            <if test="UserFriendsRequestModel.userhost != null">#{UserFriendsRequestModel.userhost},</if>
+            <if test="UserFriendsRequestModel.status != null">#{UserFriendsRequestModel.status},</if>
+            <if test="UserFriendsRequestModel.createAt != null">#{UserFriendsRequestModel.createAt},</if>
+            <if test="UserFriendsRequestModel.updateAt != null">#{UserFriendsRequestModel.updateAt},</if>
         </trim>
     </insert>
 
@@ -370,20 +370,20 @@
     <insert id="insertUserFriends" parameterType="com.qunar.qchat.dao.model.UserFriendsModel">
         insert into user_friends
         <trim prefix="(" suffix=")" suffixOverrides="," >
-            <if test="username != null">username,</if>
-            <if test="friend != null">friend,</if>
-            <if test="relationship != null">relationship,</if>
-            <if test="version != null">version,</if>
-            <if test="host != null">host,</if>
-            <if test="userhost != null">userhost,</if>
+            <if test="UserFriendsModel.username != null">username,</if>
+            <if test="UserFriendsModel.friend != null">friend,</if>
+            <if test="UserFriendsModel.relationship != null">relationship,</if>
+            <if test="UserFriendsModel.version != null">version,</if>
+            <if test="UserFriendsModel.host != null">host,</if>
+            <if test="UserFriendsModel.userhost != null">userhost,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides="," >
-            <if test="username != null">#{username},</if>
-            <if test="friend != null">#{friend},</if>
-            <if test="relationship != null">#{relationship},</if>
-            <if test="version != null">#{version},</if>
-            <if test="host != null">#{host},</if>
-            <if test="userhost != null">#{userhost},</if>
+            <if test="UserFriendsModel.username != null">#{UserFriendsModel.username},</if>
+            <if test="UserFriendsModel.friend != null">#{UserFriendsModel.friend},</if>
+            <if test="UserFriendsModel.relationship != null">#{UserFriendsModel.relationship},</if>
+            <if test="UserFriendsModel.version != null">#{UserFriendsModel.version},</if>
+            <if test="UserFriendsModel.host != null">#{UserFriendsModel.host},</if>
+            <if test="UserFriendsModel.userhost != null">#{UserFriendsModel.userhost},</if>
         </trim>
     </insert>
 </mapper>
